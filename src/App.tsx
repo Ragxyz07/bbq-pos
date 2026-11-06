@@ -266,8 +266,16 @@ export default function App() {
     cartQtyByItemId[ci.itemId] = (cartQtyByItemId[ci.itemId] || 0) + ci.quantity;
   });
 
+  const handleToggleTheme = () => {
+    sound.playTap(settings.soundEnabled);
+    const nextTheme = settings.twoColorTheme === 'red' ? 'bw' : 'red';
+    const updated: AppSettings = { ...settings, twoColorTheme: nextTheme };
+    setSettings(updated);
+    storage.saveSettings(updated);
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col font-serif antialiased">
+    <div data-theme={settings.twoColorTheme || 'red'} className="min-h-screen bg-black text-white flex flex-col font-serif antialiased">
       {/* 1. Header (Desktop & Mobile Top App Bar) */}
       <Header
         activeTab={activeTab}
@@ -276,6 +284,7 @@ export default function App() {
         isUnlocked={isUnlocked}
         onLock={handleLock}
         cartCount={totalItemCount}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* 2. Main Content Body */}

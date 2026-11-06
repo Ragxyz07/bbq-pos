@@ -3,17 +3,11 @@
 @layer base {
   :root {
     --color-bg: #000000;
-    --color-fg: #ffffff;
+    --color-fg: #ff2626;
     font-family: 'Times New Roman', Times, Georgia, serif !important;
     color-scheme: dark;
     background-color: #000000;
-    color: #ffffff;
-  }
-
-  [data-theme="red"] {
-    --color-bg: #000000;
-    --color-fg: #ff3333;
-    color-scheme: dark;
+    color: #ff2626;
   }
 
   /* Strict Universal Times New Roman font across every element */
@@ -36,14 +30,120 @@
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
-    background-color: var(--color-bg, #000000);
-    color: var(--color-fg, #ffffff);
+    background-color: #000000;
+    color: #ff2626;
   }
 
   input, textarea, [contenteditable="true"], .selectable-text {
     user-select: text;
     -webkit-user-select: text;
   }
+}
+
+/* ========================================================
+   STRICT TWO-COLOUR THEME: RED & BLACK (DEFAULT)
+   Only 2 colours: Pure Black (#000000) and Vivid Red (#ff2626)
+   ======================================================== */
+[data-theme="red"] {
+  background-color: #000000 !important;
+  color: #ff2626 !important;
+}
+
+[data-theme="red"] * {
+  border-color: #ff2626;
+}
+
+[data-theme="red"] .text-white {
+  color: #ff2626 !important;
+}
+
+[data-theme="red"] .border-white {
+  border-color: #ff2626 !important;
+}
+
+[data-theme="red"] .bg-white {
+  background-color: #ff2626 !important;
+  color: #000000 !important;
+}
+
+[data-theme="red"] .bg-white * {
+  color: #000000 !important;
+}
+
+[data-theme="red"] .text-white\/90,
+[data-theme="red"] .text-white\/80,
+[data-theme="red"] .text-white\/70 {
+  color: rgba(255, 38, 38, 0.82) !important;
+}
+
+[data-theme="red"] .text-white\/60,
+[data-theme="red"] .text-white\/50,
+[data-theme="red"] .text-white\/40 {
+  color: rgba(255, 38, 38, 0.6) !important;
+}
+
+[data-theme="red"] .border-white\/60,
+[data-theme="red"] .border-white\/50,
+[data-theme="red"] .border-white\/40 {
+  border-color: rgba(255, 38, 38, 0.5) !important;
+}
+
+[data-theme="red"] .border-white\/30,
+[data-theme="red"] .border-white\/20,
+[data-theme="red"] .border-white\/10 {
+  border-color: rgba(255, 38, 38, 0.3) !important;
+}
+
+[data-theme="red"] .hover\:bg-white:hover {
+  background-color: #ff2626 !important;
+  color: #000000 !important;
+}
+
+[data-theme="red"] .hover\:bg-white:hover * {
+  color: #000000 !important;
+}
+
+[data-theme="red"] .hover\:border-white:hover {
+  border-color: #ff2626 !important;
+}
+
+[data-theme="red"] .hover\:bg-white\/90:hover {
+  background-color: #e51f1f !important;
+  color: #000000 !important;
+}
+
+[data-theme="red"] .hover\:bg-white\/10:hover {
+  background-color: rgba(255, 38, 38, 0.15) !important;
+}
+
+[data-theme="red"] .hover\:bg-white\/5:hover {
+  background-color: rgba(255, 38, 38, 0.1) !important;
+}
+
+[data-theme="red"] input::placeholder,
+[data-theme="red"] textarea::placeholder {
+  color: rgba(255, 38, 38, 0.45) !important;
+}
+
+[data-theme="red"] input,
+[data-theme="red"] select,
+[data-theme="red"] textarea {
+  color: #ff2626 !important;
+  border-color: #ff2626 !important;
+  background-color: #000000 !important;
+}
+
+[data-theme="red"] input:focus,
+[data-theme="red"] select:focus,
+[data-theme="red"] textarea:focus {
+  outline: none !important;
+  border-color: #ff2626 !important;
+  box-shadow: 0 0 0 1px #ff2626 !important;
+}
+
+[data-theme="red"] input[type="radio"],
+[data-theme="red"] input[type="checkbox"] {
+  accent-color: #ff2626 !important;
 }
 
 /* Two-color Custom Scrollbars */
@@ -55,14 +155,23 @@
   background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ffffff;
+  background: #ff2626;
   border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
+  background: #e51f1f;
+}
+
+[data-theme="bw"] ::-webkit-scrollbar-thumb {
   background: #ffffff;
 }
 
-/* Thermal Printer CSS - Strictly Times New Roman and Pure Two-Color B&W */
+::selection {
+  background-color: #ff2626;
+  color: #000000;
+}
+
+/* Thermal Printer CSS - Strictly Times New Roman and Pure Two-Color B&W on paper */
 @media print {
   body {
     background: #ffffff !important;
@@ -79,6 +188,9 @@
   #thermal-receipt-print-area,
   #thermal-receipt-print-area * {
     visibility: visible;
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #000000 !important;
   }
 
   #thermal-receipt-print-area {

@@ -2,7 +2,7 @@ import { Bill, AppSettings } from '../types';
 import { formatCurrency, formatDateTime, generateWhatsAppMessage, DayClosingSummary, generateDayClosingWhatsAppMessage } from './format';
 
 /**
- * High-DPI Canvas Renderer for generating crisp receipt picture in strict Two-Color (Black & White)
+ * High-DPI Canvas Renderer for generating crisp receipt picture in strict Two-Color (Red & Black)
  * and Times New Roman typography. Suitable for direct sharing into WhatsApp on mobile & desktop.
  */
 export async function generateReceiptImageBlob(
@@ -14,6 +14,10 @@ export async function generateReceiptImageBlob(
       const scale = 2; // 2x for Retina / High DPI mobile displays
       const width = 420;
       
+      const isRedTheme = settings.twoColorTheme !== 'bw';
+      const fgColor = isRedTheme ? '#ff2626' : '#ffffff';
+      const bgColor = '#000000';
+
       // Calculate dynamic height based on item count
       const itemRowHeight = 36;
       const baseHeight = 440;
@@ -32,18 +36,18 @@ export async function generateReceiptImageBlob(
       ctx.scale(scale, scale);
 
       // Strict Two Colour: Pure Black Background
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
 
-      // Outer border in Pure White
-      ctx.strokeStyle = '#ffffff';
+      // Outer border in Vivid Red
+      ctx.strokeStyle = fgColor;
       ctx.lineWidth = 2;
       ctx.strokeRect(2, 2, width - 4, height - 4);
 
       let y = 36;
 
       // Stall Name in Times New Roman
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 22px "Times New Roman", Times, Georgia, serif';
       ctx.textAlign = 'center';
       ctx.fillText(settings.businessName.toUpperCase(), width / 2, y);
@@ -51,7 +55,6 @@ export async function generateReceiptImageBlob(
       // Halal & Tagline
       y += 20;
       ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
-      ctx.fillStyle = '#ffffff';
       ctx.fillText(
         `${settings.isHalal ? '100% HALAL · ' : ''}${settings.tagline || 'Premium Flavours in Every Bite'}`,
         width / 2,
@@ -70,7 +73,7 @@ export async function generateReceiptImageBlob(
 
       // Dashed Divider
       y += 14;
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo(20, y);
@@ -80,13 +83,13 @@ export async function generateReceiptImageBlob(
 
       // Bill Number, Token, and Order Type Info Box
       y += 24;
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(20, y - 14, width - 40, 48);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.strokeRect(20, y - 14, width - 40, 48);
 
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 14px "Times New Roman", Times, Georgia, serif';
       ctx.fillText(`BILL: ${bill.id}`, 32, y + 6);
 
@@ -113,7 +116,7 @@ export async function generateReceiptImageBlob(
 
       // Items Table Header
       y += 16;
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.beginPath();
       ctx.moveTo(20, y);
       ctx.lineTo(width - 20, y);
@@ -138,7 +141,7 @@ export async function generateReceiptImageBlob(
       bill.items.forEach((it) => {
         y += 22;
         ctx.textAlign = 'left';
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = fgColor;
         ctx.font = 'bold 13px "Times New Roman", Times, Georgia, serif';
 
         let nameLine = it.name;
@@ -170,7 +173,7 @@ export async function generateReceiptImageBlob(
 
       // Divider
       y += 16;
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
       ctx.moveTo(20, y);
@@ -181,7 +184,7 @@ export async function generateReceiptImageBlob(
       // Financial Summary Breakdown
       y += 18;
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = '12px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('Subtotal:', 24, y);
       ctx.textAlign = 'right';
@@ -203,14 +206,14 @@ export async function generateReceiptImageBlob(
         ctx.fillText(formatCurrency(bill.gstAmount), width - 24, y);
       }
 
-      // Grand Total Box (Inverted White Background with Black Text)
+      // Grand Total Box (Inverted: Red Background with Black Text)
       y += 24;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.fillRect(20, y - 16, width - 40, 44);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.strokeRect(20, y - 16, width - 40, 44);
 
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.textAlign = 'left';
       ctx.font = 'bold 15px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('TOTAL AMOUNT PAID', 32, y + 10);
@@ -221,7 +224,7 @@ export async function generateReceiptImageBlob(
 
       // Payment Method Tag
       y += 42;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.textAlign = 'left';
       ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
       ctx.fillText(`PAYMENT METHOD: ${bill.paymentMethod.toUpperCase()}`, 24, y);
@@ -337,7 +340,7 @@ export async function downloadReceiptImage(bill: Bill, settings: AppSettings): P
 
 /**
  * Generates a high-DPI End of Day Sales Summary image card (PNG blob)
- * in strict Two-Color (Black & White) and Times New Roman typography,
+ * in strict Two-Color (Red & Black) and Times New Roman typography,
  * explicitly highlighting Total Sales, Hand Cash, and GPay / UPI.
  */
 export async function generateDayClosingImageBlob(
@@ -349,6 +352,10 @@ export async function generateDayClosingImageBlob(
       const scale = 2;
       const width = 460;
       const height = 640;
+
+      const isRedTheme = settings.twoColorTheme !== 'bw';
+      const fgColor = isRedTheme ? '#ff2626' : '#ffffff';
+      const bgColor = '#000000';
 
       const canvas = document.createElement('canvas');
       canvas.width = width * scale;
@@ -362,18 +369,18 @@ export async function generateDayClosingImageBlob(
       ctx.scale(scale, scale);
 
       // Pure Black Background
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
 
-      // Outer border in Pure White
-      ctx.strokeStyle = '#ffffff';
+      // Outer border in Vivid Red
+      ctx.strokeStyle = fgColor;
       ctx.lineWidth = 2;
       ctx.strokeRect(2, 2, width - 4, height - 4);
 
       let y = 38;
 
       // Stall Name in Times New Roman
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 24px "Times New Roman", Times, Georgia, serif';
       ctx.textAlign = 'center';
       ctx.fillText(settings.businessName.toUpperCase(), width / 2, y);
@@ -390,21 +397,21 @@ export async function generateDayClosingImageBlob(
 
       // Divider
       y += 14;
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.beginPath();
       ctx.moveTo(20, y);
       ctx.lineTo(width - 20, y);
       ctx.stroke();
 
-      // Big Total Sales Card (Inverted White Background with Black Text)
+      // Big Total Sales Card (Inverted Red Background with Black Text)
       y += 22;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.fillRect(20, y, width - 40, 72);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.strokeRect(20, y, width - 40, 72);
 
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('TOTAL DAY SALES', width / 2, y + 22);
 
@@ -417,7 +424,7 @@ export async function generateDayClosingImageBlob(
       // SECTION 1: PAYMENT METHOD BREAKDOWN (HAND CASH & GPAY/UPI)
       y += 94;
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 13px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('PAYMENT METHOD BREAKDOWN', 24, y);
 
@@ -426,13 +433,13 @@ export async function generateDayClosingImageBlob(
       const cardW = (width - 48) / 2;
 
       // Hand Cash Card
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(20, y, cardW, 64);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.lineWidth = 1.5;
       ctx.strokeRect(20, y, cardW, 64);
 
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('HAND CASH', 30, y + 22);
 
@@ -441,11 +448,11 @@ export async function generateDayClosingImageBlob(
 
       // GPay / UPI Card
       const rightX = 20 + cardW + 8;
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(rightX, y, cardW, 64);
       ctx.strokeRect(rightX, y, cardW, 64);
 
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('GPAY / UPI', rightX + 10, y + 22);
 
@@ -455,11 +462,11 @@ export async function generateDayClosingImageBlob(
       // Card / Other Row if any
       if (summary.cardSales > 0) {
         y += 74;
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = bgColor;
         ctx.fillRect(20, y, width - 40, 30);
         ctx.strokeRect(20, y, width - 40, 30);
 
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = fgColor;
         ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
         ctx.fillText('CARD PAYMENTS:', 32, y + 20);
 
@@ -473,18 +480,18 @@ export async function generateDayClosingImageBlob(
 
       // SECTION 2: ORDER TYPE BREAKDOWN (Dine-in / Parcel)
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 13px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('ORDER TYPE BREAKDOWN (DINE-IN & PARCEL)', 24, y);
 
       y += 10;
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(20, y, width - 40, 48);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.strokeRect(20, y, width - 40, 48);
 
       // Dine-in Column
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 12px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('DINE-IN', 32, y + 20);
       ctx.font = 'bold 14px "Times New Roman", Times, Georgia, serif';
@@ -500,18 +507,18 @@ export async function generateDayClosingImageBlob(
       // SECTION 3: CASH DRAWER RECONCILIATION
       y += 66;
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = 'bold 13px "Times New Roman", Times, Georgia, serif';
       ctx.fillText('PHYSICAL CASH DRAWER CLOSING', 24, y);
 
       y += 10;
       const expectedTotal = summary.openingFloat + summary.cashSales;
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = bgColor;
       ctx.fillRect(20, y, width - 40, 56);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = fgColor;
       ctx.strokeRect(20, y, width - 40, 56);
 
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = fgColor;
       ctx.font = '11px "Times New Roman", Times, Georgia, serif';
       ctx.fillText(`Opening Float: ${formatCurrency(summary.openingFloat)} + Hand Cash: ${formatCurrency(summary.cashSales)}`, 32, y + 18);
 
@@ -522,12 +529,13 @@ export async function generateDayClosingImageBlob(
       ctx.font = 'bold 15px "Times New Roman", Times, Georgia, serif';
       ctx.fillText(formatCurrency(expectedTotal), width - 32, y + 38);
 
-      if (summary.countedCash !== undefined) {
+      const counted = summary.countedCash !== undefined ? summary.countedCash : summary.actualDrawerCash;
+      if (counted !== undefined) {
         ctx.textAlign = 'left';
         ctx.font = '11px "Times New Roman", Times, Georgia, serif';
-        const diff = summary.variance || 0;
+        const diff = summary.variance !== undefined ? summary.variance : (summary.drawerDifference || 0);
         const diffText = diff === 0 ? '[EXACT MATCH]' : diff > 0 ? `+${formatCurrency(diff)} SURPLUS` : `-${formatCurrency(Math.abs(diff))} SHORTAGE`;
-        ctx.fillText(`Counted: ${formatCurrency(summary.countedCash)} | Status: ${diffText}`, 32, y + 50);
+        ctx.fillText(`Counted: ${formatCurrency(counted)} | Status: ${diffText}`, 32, y + 50);
       }
 
       // Footer

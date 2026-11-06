@@ -238,6 +238,34 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             />
           </div>
 
+          <div className="pt-2 border-t border-white/20">
+            <label className="font-bold block mb-1.5 uppercase">Two-Colour POS Theme</label>
+            <div className="grid grid-cols-2 gap-2 max-w-sm">
+              <button
+                type="button"
+                onClick={() => handleChange('twoColorTheme', 'red')}
+                className={`py-2 px-3 text-xs font-bold uppercase border transition-colors ${
+                  (formData.twoColorTheme || 'red') === 'red'
+                    ? 'bg-white text-black border-white'
+                    : 'bg-black text-white border-white/40 hover:border-white'
+                }`}
+              >
+                Red &amp; Black
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChange('twoColorTheme', 'bw')}
+                className={`py-2 px-3 text-xs font-bold uppercase border transition-colors ${
+                  formData.twoColorTheme === 'bw'
+                    ? 'bg-white text-black border-white'
+                    : 'bg-black text-white border-white/40 hover:border-white'
+                }`}
+              >
+                Black &amp; White
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input

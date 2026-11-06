@@ -93,6 +93,10 @@ export const storage = {
       return DEFAULT_APP_SETTINGS;
     }
     const merged = { ...DEFAULT_APP_SETTINGS, ...data };
+    if (!merged.twoColorTheme) {
+      merged.twoColorTheme = 'red';
+      safeSet(STORAGE_KEYS.SETTINGS, merged);
+    }
     if (merged.defaultFlavourSurcharge === 20) {
       merged.defaultFlavourSurcharge = 10;
       safeSet(STORAGE_KEYS.SETTINGS, merged);

@@ -107,10 +107,10 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onToggleTheme}
-                title="Toggle Two-Color Palette (Black & White / Black & Red)"
-                className="px-2 py-1 text-[11px] font-bold border border-white/60 hover:border-white bg-black text-white"
+                title="Toggle Two-Color Palette (Red & Black / Black & White)"
+                className="px-2.5 py-1 text-xs font-bold border border-white hover:bg-white hover:text-black transition-colors"
               >
-                {settings.twoColorTheme === 'red' ? '2-Colour: Red' : '2-Colour: B&W'}
+                {settings.twoColorTheme === 'bw' ? 'Theme: B&W' : 'Theme: Red & Black'}
               </button>
             )}
 

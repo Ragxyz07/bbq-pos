@@ -333,5 +333,5 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   defaultPaymentMethod: 'cash',
   defaultFlavourSurcharge: 10,
   soundEnabled: true,
-  twoColorTheme: 'bw',
+  twoColorTheme: 'red',
 };
