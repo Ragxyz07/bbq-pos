@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a1208" />
+      <stop offset="100%" stop-color="#0a0c10" />
+    </radialGradient>
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#dc2626" />
+      <stop offset="50%" stop-color="#ea580c" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="boxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#374151" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+    <linearGradient id="metalRim" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="50%" stop-color="#ea580c" />
+      <stop offset="100%" stop-color="#ef4444" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base with Safe Zone (maskable compliant) -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGlow)" />
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#ea580c" stroke-width="4" stroke-opacity="0.25" />
+
+  <!-- Outer BBQ Box Hexagon / Grill Chamber -->
+  <g transform="translate(256, 260)">
+    <!-- Charcoal Box -->
+    <path d="M-130,50 L-90,140 L90,140 L130,50 Z" fill="url(#boxGrad)" stroke="url(#metalRim)" stroke-width="6" stroke-linejoin="round" />
+    
+    <!-- Grill Grate Lines -->
+    <line x1="-120" y1="50" x2="120" y2="50" stroke="#f97316" stroke-width="8" stroke-linecap="round" />
+    <line x1="-80" y1="40" x2="-80" y2="120" stroke="#78350f" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+    <line x1="-40" y1="40" x2="-40" y2="130" stroke="#78350f" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+    <line x1="0" y1="40" x2="0" y2="135" stroke="#78350f" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+    <line x1="40" y1="40" x2="40" y2="130" stroke="#78350f" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+    <line x1="80" y1="40" x2="80" y2="120" stroke="#78350f" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+
+    <!-- Burning Fire & Flame Elements (Rising from Grill) -->
+    <path d="M0,-170 C40,-110 90,-80 85,-20 C82,25 35,45 0,45 C-35,45 -82,25 -85,-20 C-90,-80 -40,-110 0,-170 Z" fill="url(#fireGrad)" filter="drop-shadow(0 0 20px rgba(234,88,12,0.6))" />
+    
+    <!-- Inner Flame Core -->
+    <path d="M0,-120 C22,-80 50,-50 48,-10 C46,18 20,32 0,32 C-20,32 -46,18 -48,-10 C-50,-50 -22,-80 0,-120 Z" fill="#fef08a" opacity="0.9" />
+
+    <!-- Crossed Skewers / BBQ Tongs Accent -->
+    <path d="M-110,-100 L110,90" stroke="#9ca3af" stroke-width="6" stroke-linecap="round" opacity="0.3" />
+    <path d="M110,-100 L-110,90" stroke="#9ca3af" stroke-width="6" stroke-linecap="round" opacity="0.3" />
+  </g>
+
+  <!-- Brand Typography Badge -->
+  <text x="256" y="445" font-family="'Outfit', sans-serif" font-size="34" font-weight="800" fill="#f8fafc" text-anchor="middle" letter-spacing="4">THE BBQ BOXX</text>
+  <text x="256" y="475" font-family="'Outfit', sans-serif" font-size="16" font-weight="600" fill="#f97316" text-anchor="middle" letter-spacing="2">HALAL · PREMIUM FLAVOURS</text>
+</svg>

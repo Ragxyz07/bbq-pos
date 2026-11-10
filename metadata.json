@@ -1,0 +1,6 @@
+{
+  "name": "The BBQ Boxx - POS & Billing",
+  "description": "Mobile-first offline POS and billing app for The BBQ Boxx street-food stall. Fast tap ordering, UPI QR payment, thermal receipts, menu management, and sales reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

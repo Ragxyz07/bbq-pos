@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-bg: #ffffff;
+    --color-fg: #000000;
+    --color-accent: #dc2626;
+    font-family: 'Times New Roman', Times, Georgia, serif !important;
+    color-scheme: light;
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  /* Strict Universal Times New Roman font across every element */
+  *,
+  *::before,
+  *::after,
+  html,
+  body,
+  input,
+  button,
+  select,
+  textarea,
+  h1, h2, h3, h4, h5, h6,
+  p, span, div, a, label, table, th, td {
+    font-family: 'Times New Roman', Times, Georgia, serif !important;
+  }
+
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  input, textarea, [contenteditable="true"], .selectable-text {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  input, select, textarea {
+    color: #000000;
+    background-color: #ffffff;
+    border-color: #000000;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 1px #dc2626;
+  }
+
+  input[type="radio"],
+  input[type="checkbox"] {
+    accent-color: #dc2626;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #dc2626;
+}
+
+::selection {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+/* Thermal Printer CSS - Strictly Times New Roman and Pure Two-Color B&W on paper */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Times New Roman', Times, Georgia, serif !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #thermal-receipt-print-area,
+  #thermal-receipt-print-area * {
+    visibility: visible;
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #000000 !important;
+  }
+
+  #thermal-receipt-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Times New Roman', Times, Georgia, serif !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* 58mm Thermal Print Specs */
+.receipt-58mm {
+  width: 54mm;
+  font-size: 11px;
+}
+
+/* 80mm Thermal Print Specs */
+.receipt-80mm {
+  width: 76mm;
+  font-size: 12px;
+}
+
+/* Safe area utilities */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0.5rem);
+}
