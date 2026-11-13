@@ -68,7 +68,7 @@ export const PinModal: React.FC<PinModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-xs sm:max-w-sm bg-white border-2 border-black p-4 sm:p-5 max-h-[84dvh] overflow-y-auto flex flex-col items-center text-black shadow-2xl">
+      <div className="w-full max-w-xs sm:max-w-sm bg-white border-2 border-black p-4 sm:p-5 max-h-[84dvh] overflow-y-auto touch-scroll flex flex-col items-center text-black shadow-2xl">
         {/* Header */}
         <div className="w-full flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">

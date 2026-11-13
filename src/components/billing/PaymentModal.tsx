@@ -252,7 +252,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
 
         {/* Payment Mode Body */}
-        <div className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
+        <div className="p-3 sm:p-4 overflow-y-auto touch-scroll space-y-3 flex-1 min-h-0">
           {/* CASH MODE */}
           {method === 'cash' && (
             <div className="space-y-4">

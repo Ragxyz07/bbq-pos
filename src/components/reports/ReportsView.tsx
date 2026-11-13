@@ -636,7 +636,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </button>
             </div>
 
-            <div className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
+            <div className="p-3 sm:p-4 overflow-y-auto touch-scroll space-y-3 flex-1 min-h-0">
               {/* Expected Cash Summary */}
               <div className="grid grid-cols-2 gap-3 p-3 border border-black text-xs bg-white">
                 <div>
@@ -797,7 +797,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </div>
 
             {/* Modal Content */}
-            <div className="p-3 sm:p-4 space-y-3 overflow-y-auto flex-1 min-h-0">
+            <div className="p-3 sm:p-4 space-y-3 overflow-y-auto touch-scroll flex-1 min-h-0">
               {/* Report Summary Card Preview */}
               <div className="p-4 border border-black space-y-3 bg-white">
                 <div className="flex items-center justify-between">

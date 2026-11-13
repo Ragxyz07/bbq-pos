@@ -95,7 +95,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   if (!isOpen && !isDesktopSidebar) return null;
 
   const content = (
-    <div className={`flex flex-col ${isDesktopSidebar ? 'h-full' : 'max-h-[82dvh]'} bg-white text-black select-none`}>
+    <div className={`flex flex-col ${isDesktopSidebar ? 'h-full' : 'flex-1 min-h-0'} bg-white text-black select-none`}>
       {/* Drawer Header */}
       <div className="px-3.5 sm:px-4 py-2.5 border-b border-black flex items-center justify-between shrink-0 bg-white">
         <div className="flex items-center gap-2">
@@ -140,52 +140,54 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         </div>
       </div>
 
-      {/* Order Controls (Order Type & Table/Token) */}
-      <div className="p-2.5 sm:p-3.5 bg-white border-b border-black/30 shrink-0 space-y-2">
-        {/* Order Type Segmented Control (Only Dine-in and Parcel) */}
-        <div className="grid grid-cols-2 gap-1 p-1 bg-white border border-black">
-          {(['dine-in', 'parcel'] as OrderType[]).map((type) => {
-            const isActive = orderType === type;
-            const labels: Record<OrderType, string> = {
-              'dine-in': 'Dine-in',
-              parcel: 'Parcel',
-            };
-            return (
-              <button
-                key={type}
-                type="button"
-                onClick={() => {
-                  sound.playTap(soundEnabled);
-                  setOrderType(type);
-                }}
-                className={`py-1.5 text-xs font-bold transition-colors ${
-                  isActive
-                    ? 'bg-red-600 text-white'
-                    : 'bg-white text-black hover:bg-black/5'
-                }`}
-              >
-                {labels[type]}
-              </button>
-            );
-          })}
-        </div>
+      {/* Scrollable Bill Body (Controls + Items + Summary) */}
+      <div className="flex-1 min-h-0 overflow-y-auto touch-scroll">
+        {/* Order Controls (Order Type & Table/Token) */}
+        <div className="p-2.5 sm:p-3.5 bg-white border-b border-black/30 space-y-2">
+          {/* Order Type Segmented Control (Only Dine-in and Parcel) */}
+          <div className="grid grid-cols-2 gap-1 p-1 bg-white border border-black">
+            {(['dine-in', 'parcel'] as OrderType[]).map((type) => {
+              const isActive = orderType === type;
+              const labels: Record<OrderType, string> = {
+                'dine-in': 'Dine-in',
+                parcel: 'Parcel',
+              };
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    sound.playTap(soundEnabled);
+                    setOrderType(type);
+                  }}
+                  className={`py-1.5 text-xs font-bold transition-colors ${
+                    isActive
+                      ? 'bg-red-600 text-white'
+                      : 'bg-white text-black hover:bg-black/5'
+                  }`}
+                >
+                  {labels[type]}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Table or Token Input */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1">
-            <input
-              type="text"
-              value={tableOrToken}
-              onChange={(e) => setTableOrToken(e.target.value)}
-              placeholder="Table / Token # (e.g. Table 3, Token 5)"
-              className="w-full bg-white border border-black px-3 py-1.5 text-xs text-black placeholder-black/40 focus:outline-none focus:border-red-600 font-bold"
-            />
+          {/* Table or Token Input */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={tableOrToken}
+                onChange={(e) => setTableOrToken(e.target.value)}
+                placeholder="Table / Token # (e.g. Table 3, Token 5)"
+                className="w-full bg-white border border-black px-3 py-1.5 text-xs text-black placeholder-black/40 focus:outline-none focus:border-red-600 font-bold"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Cart Items List */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-2.5 sm:p-3.5 space-y-2">
+        {/* Cart Items List */}
+        <div className="p-2.5 sm:p-3.5 space-y-2">
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-8 px-4 text-black/60">
             <ShoppingBag className="w-10 h-10 stroke-1 mb-2 text-black/40" />
@@ -324,11 +326,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
           ))
         )}
-      </div>
+        </div>
 
-      {/* Bottom Summary & Settlement Box */}
-      {cart.length > 0 && (
-        <div className="p-2.5 sm:p-3.5 bg-white border-t border-black shrink-0 space-y-2">
+        {/* Bill Summary & Payment Options (scrolls smoothly with items) */}
+        {cart.length > 0 && (
+          <div className="p-2.5 sm:p-3.5 bg-white border-t border-black space-y-2">
           {/* Discount & GST Controls */}
           <div className="space-y-1.5">
             {/* Quick Discount Trigger */}
@@ -509,7 +511,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
           </div>
 
-          {/* Checkout CTA in RED */}
+          </div>
+        )}
+      </div>
+
+      {/* Sticky Checkout CTA in RED */}
+      {cart.length > 0 && (
+        <div className="p-2.5 sm:p-3 bg-white border-t border-black shrink-0">
           <button
             type="button"
             onClick={() => onProceedToPayment(paymentMethod)}

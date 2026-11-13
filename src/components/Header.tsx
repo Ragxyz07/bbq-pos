@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* iOS Install Guide Modal */}
       {showIosGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-          <div className="w-full max-w-xs sm:max-w-sm bg-white border-2 border-black p-4 sm:p-5 max-h-[82dvh] overflow-y-auto text-center shadow-2xl">
+          <div className="w-full max-w-xs sm:max-w-sm bg-white border-2 border-black p-4 sm:p-5 max-h-[82dvh] overflow-y-auto touch-scroll text-center shadow-2xl">
             <div className="w-10 h-10 mx-auto mb-2.5 border border-black text-red-600 flex items-center justify-center">
               <Flame className="w-5 h-5" />
             </div>

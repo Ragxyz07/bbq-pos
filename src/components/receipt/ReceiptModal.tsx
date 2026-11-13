@@ -190,7 +190,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           </div>
 
           {/* Paper Bill Preview (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-black/10 border-b border-black/30 flex items-start sm:items-center justify-center">
+          <div className="flex-1 min-h-0 overflow-y-auto touch-scroll p-3 sm:p-4 bg-black/10 border-b border-black/30 flex items-start sm:items-center justify-center">
             <div
               className={`bg-white text-black p-4 shadow-md border border-black leading-tight max-w-full ${
                 printerWidth === '58mm' ? 'w-[270px] text-[11px]' : 'w-[340px] text-xs'

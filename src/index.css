@@ -27,8 +27,9 @@
   }
 
   html, body {
-    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
     user-select: none;
     -webkit-user-select: none;
     background-color: #ffffff;
@@ -149,8 +150,13 @@
   scrollbar-width: none;
 }
 
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
 html,
 body {
-  overflow-x: hidden;
-  max-width: 100vw;
+  overflow-x: clip;
+  max-width: 100%;
 }

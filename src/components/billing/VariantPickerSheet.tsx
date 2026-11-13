@@ -103,7 +103,7 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
         </div>
 
         {/* Scrollable Customization Body */}
-        <div className="p-3 sm:p-4 overflow-y-auto space-y-3.5 flex-1 min-h-0 text-black">
+        <div className="p-3 sm:p-4 overflow-y-auto touch-scroll space-y-3.5 flex-1 min-h-0 text-black">
           {/* 1. Variant Picker */}
           {item.hasVariants && item.variants.length > 0 && (
             <div>

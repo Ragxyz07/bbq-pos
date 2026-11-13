@@ -902,7 +902,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
       {/* CATEGORY ADD/EDIT MODAL */}
       {(isCreatingCategory || editingCategory) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-          <div className="w-full max-w-xs sm:max-w-sm bg-white text-black border-2 border-black p-4 space-y-3 max-h-[82dvh] overflow-y-auto shadow-2xl">
+          <div className="w-full max-w-xs sm:max-w-sm bg-white text-black border-2 border-black p-4 space-y-3 max-h-[82dvh] overflow-y-auto touch-scroll shadow-2xl">
             <div className="flex items-center justify-between border-b border-black pb-2">
               <h3 className="text-base font-bold uppercase text-black">
                 {isCreatingCategory ? 'Add Category' : 'Rename Category'}
@@ -969,7 +969,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
       {/* CATEGORY DELETE MODAL */}
       {deletingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-          <div className="w-full max-w-xs sm:max-w-sm bg-white text-black border-2 border-black p-4 space-y-3 max-h-[82dvh] overflow-y-auto shadow-2xl">
+          <div className="w-full max-w-xs sm:max-w-sm bg-white text-black border-2 border-black p-4 space-y-3 max-h-[82dvh] overflow-y-auto touch-scroll shadow-2xl">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
               <h3 className="text-base font-bold uppercase text-black">Delete "{deletingCategory.name}"?</h3>
@@ -1131,7 +1131,7 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1 min-h-0 text-xs">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-4 overflow-y-auto touch-scroll space-y-3 flex-1 min-h-0 text-xs">
           {/* Item Name & Category */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>

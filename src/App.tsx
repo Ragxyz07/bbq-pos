@@ -275,7 +275,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col font-serif antialiased">
+    <div className="min-h-dvh bg-white text-black flex flex-col font-serif antialiased">
       {/* 1. Header (Desktop & Mobile Top App Bar) */}
       <Header
         activeTab={activeTab}
@@ -288,12 +288,12 @@ export default function App() {
       />
 
       {/* 2. Main Content Body */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0">
         {/* ================= BILLING SCREEN ================= */}
         {activeTab === 'billing' && (
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row min-w-0">
             {/* Left Column: Menu Items & Categories */}
-            <div className="flex-1 flex flex-col overflow-y-auto p-3 sm:p-5 lg:p-6 pb-36 lg:pb-8">
+            <div className="flex-1 min-w-0 p-3 sm:p-5 lg:p-6 pb-36 lg:pb-8">
               <div className="max-w-4xl w-full mx-auto space-y-3">
                 {/* Search & Counter Search Header */}
                 <div className="flex items-center gap-2">
@@ -387,7 +387,7 @@ export default function App() {
 
         {/* ================= ORDER HISTORY SCREEN ================= */}
         {activeTab === 'orders' && (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-w-0">
             <OrderHistory
               bills={bills}
               onReprintBill={(bill) => setCompletedReceiptBill(bill)}
@@ -401,14 +401,14 @@ export default function App() {
 
         {/* ================= REPORTS SCREEN ================= */}
         {activeTab === 'reports' && (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-w-0">
             <ReportsView bills={bills} settings={settings} soundEnabled={settings.soundEnabled} />
           </div>
         )}
 
         {/* ================= MENU ADMIN SCREEN ================= */}
         {activeTab === 'admin' && (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-w-0">
             <MenuManager
               categories={categories}
               setCategories={setCategories}
@@ -421,7 +421,7 @@ export default function App() {
 
         {/* ================= SETTINGS SCREEN ================= */}
         {activeTab === 'settings' && (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-w-0">
             <SettingsView
               settings={settings}
               onUpdateSettings={setSettings}
