@@ -11,14 +11,14 @@ export default defineConfig(() => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
         manifest: {
           id: '/',
           name: 'The BBQ Boxx - POS & Billing',
           short_name: 'BBQ Boxx',
           description: 'Premium Flavours in Every Bite - Street-food BBQ stall offline POS & Billing system',
-          theme_color: '#0d0f15',
-          background_color: '#090a0f',
+          theme_color: '#ffffff',
+          background_color: '#000000',
           display: 'standalone',
           start_url: '/',
           scope: '/',
@@ -37,7 +37,7 @@ export default defineConfig(() => {
               purpose: 'any',
             },
             {
-              src: '/pwa-512x512.png',
+              src: '/pwa-maskable-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
