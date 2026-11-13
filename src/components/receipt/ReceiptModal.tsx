@@ -107,12 +107,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   return (
     <>
       {/* Interactive Modal UI for the Counter */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 animate-in fade-in duration-150 no-print select-none">
-        <div className="w-full max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[95dvh] overflow-hidden text-black">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 no-print select-none">
+        <div className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[84dvh] overflow-hidden text-black">
           {/* Header */}
-          <div className="px-3 sm:px-5 py-3 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
+          <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 border border-red-600 bg-red-600 text-white flex items-center justify-center font-bold">
+              <div className="w-7 h-7 border border-red-600 bg-red-600 text-white flex items-center justify-center font-bold text-xs">
                 ✓
               </div>
               <div>
@@ -132,7 +132,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           </div>
 
           {/* Mode Switcher: Receipt vs KOT */}
-          <div className="p-3 bg-white border-b border-black/30 flex items-center justify-between gap-2">
+          <div className="p-2.5 bg-white border-b border-black/30 flex items-center justify-between gap-2 shrink-0">
             <div className="flex p-0.5 bg-white border border-black text-xs">
               <button
                 type="button"
@@ -377,7 +377,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           </div>
 
           {/* Action Row */}
-          <div className="p-3 sm:p-4 bg-white border-t-2 border-black space-y-2.5 pb-safe">
+          <div className="p-3 bg-white border-t-2 border-black space-y-2 shrink-0">
             {/* Feedback notification if image downloaded or shared */}
             {shareFeedback && (
               <div className="p-2 border border-black bg-black text-white text-xs font-bold text-center">
@@ -392,13 +392,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 placeholder="Customer Phone (10 digits for WhatsApp)"
-                className="flex-1 min-w-0 bg-white border border-black px-3 py-2 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600 min-h-[40px]"
+                className="flex-1 min-w-0 bg-white border border-black px-3 py-1.5 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600 min-h-[38px]"
               />
               <button
                 type="button"
                 onClick={handleWhatsAppShareText}
                 title="Send as WhatsApp text message"
-                className="px-3 py-2 bg-white hover:bg-black hover:text-white text-black text-xs font-bold flex items-center gap-1 transition-colors border border-black shrink-0 min-h-[40px]"
+                className="px-3 py-1.5 bg-white hover:bg-black hover:text-white text-black text-xs font-bold flex items-center gap-1 transition-colors border border-black shrink-0 min-h-[38px]"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Text</span>
@@ -410,7 +410,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               type="button"
               disabled={isGeneratingImage}
               onClick={handleShareImageToWhatsApp}
-              className="w-full h-12 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-red-600 transition-colors min-h-[48px] shadow-sm"
+              className="w-full py-2.5 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-red-600 transition-colors min-h-[42px] shadow-sm"
             >
               <ImageIcon className="w-4 h-4 stroke-[2.5]" />
               <span>
@@ -425,7 +425,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="col-span-2 h-11 bg-black hover:bg-black/90 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-black transition-colors min-h-[44px]"
+                className="col-span-2 py-2 bg-black hover:bg-black/90 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-black transition-colors min-h-[40px]"
               >
                 <Printer className="w-4 h-4 stroke-[2.5]" />
                 <span>Print {isKot ? 'KOT' : 'Receipt'}</span>
@@ -435,7 +435,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 type="button"
                 onClick={handleDownloadImage}
                 title="Download Bill Image PNG"
-                className="h-11 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[44px]"
+                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[40px]"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Picture</span>
@@ -446,7 +446,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-2.5 bg-white hover:bg-black/5 text-black text-xs font-bold border border-black transition-colors"
+              className="w-full py-2 bg-white hover:bg-black/5 text-black text-xs font-bold border border-black transition-colors"
             >
               Start Next Order
             </button>

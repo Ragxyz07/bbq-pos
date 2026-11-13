@@ -304,8 +304,8 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
 
       {/* Cancellation / Refund Reason Modal */}
       {cancellingBill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm bg-white border-2 border-black p-5 space-y-4 rounded-xl shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
+          <div className="w-full max-w-xs sm:max-w-sm bg-white border-2 border-black p-4 space-y-3 rounded-xl shadow-2xl max-h-[82dvh] overflow-y-auto">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-red-600" />

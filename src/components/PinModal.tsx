@@ -67,22 +67,22 @@ export const PinModal: React.FC<PinModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-sm bg-white border-t-2 sm:border-2 border-black p-6 flex flex-col items-center text-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 select-none">
+      <div className="w-full max-w-xs sm:max-w-sm bg-white border-2 border-black p-4 sm:p-5 max-h-[84dvh] overflow-y-auto flex flex-col items-center text-black shadow-2xl">
         {/* Header */}
-        <div className="w-full flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 border border-black bg-white flex items-center justify-center text-red-600">
+        <div className="w-full flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 border border-black bg-white flex items-center justify-center text-red-600 shrink-0">
               <Lock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-black tracking-wide">Enter Security PIN</h3>
+              <h3 className="text-sm sm:text-base font-bold text-black tracking-wide">Enter Security PIN</h3>
               <p className="text-xs text-black/70">Unlock {targetTitle}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 bg-white hover:bg-black hover:text-white border border-black flex items-center justify-center text-black transition-colors"
+            className="w-8 h-8 bg-white hover:bg-black hover:text-white border border-black flex items-center justify-center text-black transition-colors shrink-0"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -90,13 +90,13 @@ export const PinModal: React.FC<PinModalProps> = ({
         </div>
 
         {/* PIN Indicators */}
-        <div className="my-6 flex items-center gap-4">
+        <div className="my-3.5 flex items-center gap-4">
           {[0, 1, 2, 3].map((idx) => {
             const filled = pin.length > idx;
             return (
               <div
                 key={idx}
-                className={`w-4 h-4 transition-all duration-200 ${
+                className={`w-3.5 h-3.5 transition-all duration-200 ${
                   error
                     ? 'bg-red-600 scale-125 border-2 border-red-600 animate-pulse'
                     : filled
@@ -115,13 +115,13 @@ export const PinModal: React.FC<PinModalProps> = ({
         )}
 
         {/* Tactile Keypad */}
-        <div className="w-full grid grid-cols-3 gap-2 my-2">
+        <div className="w-full grid grid-cols-3 gap-2 my-1.5">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
             <button
               key={digit}
               type="button"
               onClick={() => handleDigit(digit)}
-              className="h-14 sm:h-16 bg-white hover:bg-black hover:text-white active:bg-black active:text-white text-xl font-bold text-black transition-colors border border-black flex items-center justify-center"
+              className="h-11 sm:h-12 bg-white hover:bg-black hover:text-white active:bg-black active:text-white text-lg font-bold text-black transition-colors border border-black flex items-center justify-center"
             >
               {digit}
             </button>
@@ -129,28 +129,28 @@ export const PinModal: React.FC<PinModalProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className="h-14 sm:h-16 bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider text-black transition-colors border border-black flex items-center justify-center"
+            className="h-11 sm:h-12 bg-white hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider text-black transition-colors border border-black flex items-center justify-center"
           >
             Clear
           </button>
           <button
             type="button"
             onClick={() => handleDigit('0')}
-            className="h-14 sm:h-16 bg-white hover:bg-black hover:text-white active:bg-black active:text-white text-xl font-bold text-black transition-colors border border-black flex items-center justify-center"
+            className="h-11 sm:h-12 bg-white hover:bg-black hover:text-white active:bg-black active:text-white text-lg font-bold text-black transition-colors border border-black flex items-center justify-center"
           >
             0
           </button>
           <button
             type="button"
             onClick={handleDelete}
-            className="h-14 sm:h-16 bg-white hover:bg-black hover:text-white text-black transition-colors border border-black flex items-center justify-center"
+            className="h-11 sm:h-12 bg-white hover:bg-black hover:text-white text-black transition-colors border border-black flex items-center justify-center"
             aria-label="Delete"
           >
             <Delete className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="mt-4 text-[11px] text-black/70 text-center">
+        <p className="mt-3 text-[11px] text-black/70 text-center">
           Default security PIN is <strong className="text-black font-bold">1234</strong>
         </p>
       </div>

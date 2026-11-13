@@ -622,21 +622,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Cash Drawer Closing Modal */}
       {showDrawerModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-          <div className="w-full max-w-lg bg-white text-black border-2 border-black flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
-            <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-white">
+          <div className="w-full max-w-sm sm:max-w-md bg-white text-black border-2 border-black flex flex-col max-h-[84dvh] overflow-hidden shadow-2xl">
+            <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
               <div>
-                <h3 className="text-base font-bold uppercase text-black">End-of-Day Cash Drawer Closing</h3>
+                <h3 className="text-sm sm:text-base font-bold uppercase text-black">End-of-Day Cash Drawer Closing</h3>
                 <span className="text-xs text-black/70">Reconcile physical cash with system bills</span>
               </div>
               <button
                 onClick={() => setShowDrawerModal(false)}
-                className="w-8 h-8 border border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors"
+                className="w-8 h-8 border border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+            <div className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
               {/* Expected Cash Summary */}
               <div className="grid grid-cols-2 gap-3 p-3 border border-black text-xs bg-white">
                 <div>
@@ -758,18 +758,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </div>
             </div>
 
-            <div className="p-4 border-t-2 border-black flex items-center gap-2 bg-white pb-safe">
+            <div className="p-3 border-t-2 border-black flex items-center gap-2 bg-white shrink-0">
               <button
                 type="button"
                 onClick={() => setShowDrawerModal(false)}
-                className="flex-1 py-2.5 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors min-h-[44px]"
+                className="flex-1 py-2 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors min-h-[42px]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveClosing}
-                className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors min-h-[44px]"
+                className="flex-1 py-2 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors min-h-[42px]"
               >
                 Save &amp; Share Closing
               </button>
@@ -781,23 +781,23 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Share Today's Sales Modal */}
       {showShareModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-          <div className="w-full max-w-md bg-white text-black border-2 border-black flex flex-col overflow-hidden max-h-[92dvh] shadow-2xl">
+          <div className="w-full max-w-sm sm:max-w-md bg-white text-black border-2 border-black flex flex-col overflow-hidden max-h-[84dvh] shadow-2xl">
             {/* Modal Header */}
-            <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-white">
+            <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
               <div>
-                <h3 className="text-base font-bold uppercase text-black">Share Day Closing Report</h3>
+                <h3 className="text-sm sm:text-base font-bold uppercase text-black">Share Day Closing Report</h3>
                 <span className="text-[11px] text-black/70">Total Sales, Hand Cash &amp; GPay Breakdown</span>
               </div>
               <button
                 onClick={() => setShowShareModal(false)}
-                className="w-8 h-8 border border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors"
+                className="w-8 h-8 border border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors shrink-0"
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Content */}
-            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
+            <div className="p-3 sm:p-4 space-y-3 overflow-y-auto flex-1 min-h-0">
               {/* Report Summary Card Preview */}
               <div className="p-4 border border-black space-y-3 bg-white">
                 <div className="flex items-center justify-between">

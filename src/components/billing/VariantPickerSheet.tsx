@@ -73,21 +73,18 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150">
       <div
-        className="w-full max-w-lg bg-white border-t-2 border-black shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200"
+        className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black shadow-2xl max-h-[82dvh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Grab Handle */}
-        <div className="w-12 h-1 bg-black/20 mx-auto my-3 shrink-0" />
-
         {/* Sheet Header */}
-        <div className="px-5 pb-3 border-b border-black flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-bold text-black tracking-wide">{item.name}</h3>
+        <div className="px-3.5 sm:px-4 py-2.5 border-b border-black flex items-start justify-between gap-3 shrink-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base font-bold text-black tracking-wide">{item.name}</h3>
               {item.badge && (
-                <span className="text-[10px] font-bold uppercase px-2 py-0.5 border border-black text-black">
+                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 border border-black text-black">
                   {item.badge}
                 </span>
               )}
@@ -98,7 +95,7 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 border border-black bg-white hover:bg-black hover:text-white flex items-center justify-center text-black shrink-0 transition-colors"
+            className="w-8 h-8 border border-black bg-white hover:bg-black hover:text-white flex items-center justify-center text-black shrink-0 transition-colors"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -106,7 +103,7 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
         </div>
 
         {/* Scrollable Customization Body */}
-        <div className="px-5 py-4 overflow-y-auto space-y-5 flex-1 text-black">
+        <div className="p-3 sm:p-4 overflow-y-auto space-y-3.5 flex-1 min-h-0 text-black">
           {/* 1. Variant Picker */}
           {item.hasVariants && item.variants.length > 0 && (
             <div>
@@ -261,17 +258,17 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
         </div>
 
         {/* Sticky Sheet Bottom Bar: Big CTA in RED */}
-        <div className="p-4 bg-white border-t border-black pb-safe">
+        <div className="p-3 bg-white border-t border-black shrink-0">
           <button
             type="button"
             onClick={handleConfirm}
-            className="w-full h-13 bg-red-600 hover:bg-red-700 text-white border border-red-600 font-bold text-sm sm:text-base flex items-center justify-between px-6 transition-colors min-h-[52px] shadow-md"
+            className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white border border-red-600 font-bold text-sm flex items-center justify-between px-4 transition-colors min-h-[44px] shadow-md"
           >
             <div className="flex items-center gap-2">
-              <Plus className="w-5 h-5 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Add to Bill</span>
             </div>
-            <div className="text-base sm:text-lg font-bold tabular-nums">
+            <div className="text-base font-bold tabular-nums">
               {formatCurrency(totalPrice)}
             </div>
           </button>

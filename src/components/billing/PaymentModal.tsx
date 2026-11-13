@@ -97,7 +97,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       );
 
       QRCode.toCanvas(qrCanvasRef.current, upiUri, {
-        width: 220,
+        width: 180,
         margin: 2,
         color: {
           dark: '#000000',
@@ -190,10 +190,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-lg bg-white border-t-2 sm:border-2 border-black shadow-2xl flex flex-col max-h-[92dvh] overflow-hidden text-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 select-none">
+      <div className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[82dvh] overflow-hidden text-black">
         {/* Header */}
-        <div className="px-3 sm:px-5 py-3.5 border-b-2 border-black flex items-center justify-between shrink-0 bg-white">
+        <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between shrink-0 bg-white">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-black border border-black px-2 py-0.5">
@@ -205,22 +205,22 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
             <div className="flex items-baseline gap-2 mt-0.5">
               <span className="text-xs font-bold text-black/80">Total Payable:</span>
-              <span className="text-xl sm:text-2xl font-bold text-black tabular-nums">
+              <span className="text-lg sm:text-xl font-bold text-black tabular-nums">
                 {formatCurrency(totalAmount)}
               </span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 bg-white hover:bg-black hover:text-white border border-black flex items-center justify-center text-black transition-colors"
+            className="w-8 h-8 bg-white hover:bg-black hover:text-white border border-black flex items-center justify-center text-black transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Payment Method Selector */}
-        <div className="p-3 bg-white border-b border-black/30 shrink-0">
-          <div className="grid grid-cols-4 gap-2">
+        <div className="p-2.5 bg-white border-b border-black/30 shrink-0">
+          <div className="grid grid-cols-4 gap-1.5">
             {[
               { id: 'cash' as PaymentMethod, label: 'Cash', icon: Banknote },
               { id: 'upi' as PaymentMethod, label: 'UPI QR', icon: QrCode },
@@ -237,7 +237,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     sound.playTap(soundEnabled);
                     setMethod(pm.id);
                   }}
-                  className={`py-2.5 px-1 flex flex-col items-center justify-center gap-1 border transition-colors min-h-[56px] ${
+                  className={`py-2 px-1 flex flex-col items-center justify-center gap-1 border transition-colors min-h-[48px] ${
                     isActive
                       ? 'bg-red-600 text-white border-red-600 font-bold'
                       : 'bg-white text-black border-black/40 hover:border-black'
@@ -252,7 +252,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
 
         {/* Payment Mode Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
           {/* CASH MODE */}
           {method === 'cash' && (
             <div className="space-y-4">
@@ -455,7 +455,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
 
         {/* Footer Settlement Action */}
-        <div className="p-4 bg-white border-t-2 border-black pb-safe">
+        <div className="p-3 bg-white border-t-2 border-black shrink-0">
           <button
             type="button"
             disabled={
@@ -463,9 +463,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               (method === 'split' && !isSplitValid)
             }
             onClick={handleFinish}
-            className="w-full h-14 bg-red-600 hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold text-base flex items-center justify-center gap-2 border border-red-600 transition-all min-h-[52px]"
+            className="w-full py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 border border-red-600 transition-all min-h-[44px]"
           >
-            <CheckCircle className="w-5 h-5 stroke-[2.5]" />
+            <CheckCircle className="w-4 h-4 stroke-[2.5]" />
             <span>Complete Sale &amp; Print Bill</span>
           </button>
         </div>

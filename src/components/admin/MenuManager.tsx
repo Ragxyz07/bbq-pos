@@ -901,8 +901,8 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
       {/* CATEGORY ADD/EDIT MODAL */}
       {(isCreatingCategory || editingCategory) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm bg-white text-black border-2 border-black p-5 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
+          <div className="w-full max-w-xs sm:max-w-sm bg-white text-black border-2 border-black p-4 space-y-3 max-h-[82dvh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between border-b border-black pb-2">
               <h3 className="text-base font-bold uppercase text-black">
                 {isCreatingCategory ? 'Add Category' : 'Rename Category'}
@@ -968,8 +968,8 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
       {/* CATEGORY DELETE MODAL */}
       {deletingCategory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm bg-white text-black border-2 border-black p-5 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
+          <div className="w-full max-w-xs sm:max-w-sm bg-white text-black border-2 border-black p-4 space-y-3 max-h-[82dvh] overflow-y-auto shadow-2xl">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
               <h3 className="text-base font-bold uppercase text-black">Delete "{deletingCategory.name}"?</h3>
@@ -1119,19 +1119,19 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 font-serif text-black">
-      <div className="w-full max-w-lg bg-white border-2 border-black flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
+      <div className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black flex flex-col max-h-[84dvh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-white">
-          <h3 className="text-base font-bold uppercase text-black">
+        <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
+          <h3 className="text-sm sm:text-base font-bold uppercase text-black truncate pr-2">
             {item ? `Edit Item: ${item.name}` : 'Create New Menu Item'}
           </h3>
-          <button onClick={onClose} className="text-black hover:opacity-70">
+          <button onClick={onClose} className="text-black hover:opacity-70 shrink-0">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 text-xs">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-4 overflow-y-auto space-y-3 flex-1 min-h-0 text-xs">
           {/* Item Name & Category */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -1355,17 +1355,17 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
             )}
           </div>
 
-          <div className="p-4 border-t-2 border-black flex items-center gap-2 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 mt-4 bg-white pb-safe">
+          <div className="p-3 border-t-2 border-black flex items-center gap-2 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 mt-3 bg-white">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors uppercase min-h-[44px]"
+              className="flex-1 py-2 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors uppercase min-h-[42px]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors uppercase min-h-[44px]"
+              className="flex-1 py-2 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors uppercase min-h-[42px]"
             >
               Save Item
             </button>
