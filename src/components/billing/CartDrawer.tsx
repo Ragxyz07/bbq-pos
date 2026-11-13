@@ -95,9 +95,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   if (!isOpen && !isDesktopSidebar) return null;
 
   const content = (
-    <div className="flex flex-col h-full bg-white text-black select-none">
+    <div className={`flex flex-col ${isDesktopSidebar ? 'h-full' : 'max-h-[82dvh]'} bg-white text-black select-none`}>
       {/* Drawer Header */}
-      <div className="px-4 sm:px-5 py-3.5 border-b border-black flex items-center justify-between shrink-0 bg-white">
+      <div className="px-3.5 sm:px-4 py-2.5 border-b border-black flex items-center justify-between shrink-0 bg-white">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 border border-black bg-white flex items-center justify-center text-black">
             <ShoppingBag className="w-4 h-4" />
@@ -141,9 +141,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       </div>
 
       {/* Order Controls (Order Type & Table/Token) */}
-      <div className="p-3 sm:p-4 bg-white border-b border-black/30 shrink-0 space-y-2.5">
+      <div className="p-2.5 sm:p-3.5 bg-white border-b border-black/30 shrink-0 space-y-2">
         {/* Order Type Segmented Control (Only Dine-in and Parcel) */}
-        <div className="grid grid-cols-2 gap-1.5 p-1 bg-white border border-black">
+        <div className="grid grid-cols-2 gap-1 p-1 bg-white border border-black">
           {(['dine-in', 'parcel'] as OrderType[]).map((type) => {
             const isActive = orderType === type;
             const labels: Record<OrderType, string> = {
@@ -158,7 +158,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   sound.playTap(soundEnabled);
                   setOrderType(type);
                 }}
-                className={`py-2 text-xs font-bold transition-colors ${
+                className={`py-1.5 text-xs font-bold transition-colors ${
                   isActive
                     ? 'bg-red-600 text-white'
                     : 'bg-white text-black hover:bg-black/5'
@@ -185,10 +185,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       </div>
 
       {/* Cart Items List */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5">
+      <div className="flex-1 min-h-0 overflow-y-auto p-2.5 sm:p-3.5 space-y-2">
         {cart.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-black/60">
-            <ShoppingBag className="w-12 h-12 stroke-1 mb-2 text-black/40" />
+          <div className="flex flex-col items-center justify-center text-center py-8 px-4 text-black/60">
+            <ShoppingBag className="w-10 h-10 stroke-1 mb-2 text-black/40" />
             <p className="text-sm font-bold text-black">Bill is empty</p>
             <p className="text-xs text-black/60 mt-1 max-w-[200px]">
               Tap items from the menu to build the order quickly.
@@ -198,7 +198,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           cart.map((item) => (
             <div
               key={item.cartItemId}
-              className="p-3 bg-white border border-black/40 flex flex-col gap-2"
+              className="p-2.5 bg-white border border-black/40 flex flex-col gap-1.5"
             >
               {/* Item Top Row */}
               <div className="flex items-start justify-between gap-2">
@@ -328,7 +328,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
       {/* Bottom Summary & Settlement Box */}
       {cart.length > 0 && (
-        <div className="p-3.5 sm:p-4 bg-white border-t border-black shrink-0 space-y-2.5 pb-safe">
+        <div className="p-2.5 sm:p-3.5 bg-white border-t border-black shrink-0 space-y-2">
           {/* Discount & GST Controls */}
           <div className="space-y-1.5">
             {/* Quick Discount Trigger */}
@@ -465,9 +465,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between text-black font-bold text-sm sm:text-base pt-1.5 border-t border-black">
+            <div className="flex items-center justify-between text-black font-bold text-sm sm:text-base pt-1 border-t border-black">
               <span>Grand Total</span>
-              <span className="text-xl font-bold tabular-nums text-black">
+              <span className="text-lg sm:text-xl font-bold tabular-nums text-black">
                 {formatCurrency(finalTotal)}
               </span>
             </div>
@@ -513,7 +513,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <button
             type="button"
             onClick={() => onProceedToPayment(paymentMethod)}
-            className="w-full h-13 bg-red-600 hover:bg-red-700 text-white border border-red-600 font-bold text-sm sm:text-base flex items-center justify-between px-5 transition-colors min-h-[52px] shadow-sm"
+            className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white border border-red-600 font-bold text-sm flex items-center justify-between px-4 transition-colors min-h-[44px] shadow-sm"
           >
             <span>
               {paymentMethod === 'cash'
@@ -524,7 +524,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 ? 'Pay via Card'
                 : 'Split Payment'}
             </span>
-            <span className="text-xl font-bold tabular-nums">
+            <span className="text-lg font-bold tabular-nums">
               {formatCurrency(finalTotal)}
             </span>
           </button>
@@ -533,14 +533,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     </div>
   );
 
-  // If desktop sidebar, render inline. If mobile, render as bottom drawer.
+  // If desktop sidebar, render inline. If mobile, render as fitted modal inside screen.
   if (isDesktopSidebar) {
     return <aside className="w-80 lg:w-96 shrink-0 h-[calc(100vh-64px)] sticky top-16 border-l-2 border-black bg-white hidden lg:block overflow-hidden">{content}</aside>;
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs lg:hidden animate-in fade-in duration-150">
-      <div className="w-full max-w-lg h-[92dvh] max-h-[820px] overflow-hidden shadow-2xl flex flex-col border-t-2 border-black bg-white animate-in slide-in-from-bottom duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 lg:hidden animate-in fade-in duration-150">
+      <div className="w-full max-w-sm sm:max-w-md max-h-[82dvh] overflow-hidden shadow-2xl flex flex-col border-2 border-black bg-white animate-in zoom-in-95 duration-150">
         {content}
       </div>
     </div>
