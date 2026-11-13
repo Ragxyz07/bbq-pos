@@ -5,6 +5,19 @@ export function formatCurrency(amount: number): string {
   return `₹${Math.round(amount)}`;
 }
 
+export function getFlavourMultiplier(variantName?: string): number {
+  if (!variantName) return 1;
+  const lower = variantName.trim().toLowerCase();
+  if (lower.includes('half')) return 2;
+  if (lower.includes('full')) return 4;
+  return 1;
+}
+
+export function getEffectiveFlavourSurcharge(baseSurcharge: number, variantName?: string): number {
+  if (!baseSurcharge || baseSurcharge <= 0) return 0;
+  return baseSurcharge * getFlavourMultiplier(variantName);
+}
+
 export function formatDateTime(timestamp: number): string {
   const date = new Date(timestamp);
   return date.toLocaleString('en-IN', {

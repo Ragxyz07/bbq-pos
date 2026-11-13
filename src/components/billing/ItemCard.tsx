@@ -98,7 +98,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         {item.hasFlavours && (
           <div className="mt-1.5 text-[11px] text-black/80 font-normal flex items-center gap-1 italic">
             <span>
-              Signature Flavours (+₹{item.flavours?.find((f) => f.surcharge > 0)?.surcharge || 10})
+              Signature Flavours (+₹{item.flavours?.find((f) => f.surcharge > 0)?.surcharge || 10}
+              {item.hasVariants ? ' / quarter' : ''})
             </span>
           </div>
         )}

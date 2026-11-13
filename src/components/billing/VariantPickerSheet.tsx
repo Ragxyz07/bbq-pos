@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MenuItem, ItemVariant, FlavourAddon } from '../../types';
 import { X, Plus, Minus, Check, MessageSquare } from 'lucide-react';
-import { formatCurrency } from '../../utils/format';
+import { formatCurrency, getEffectiveFlavourSurcharge } from '../../utils/format';
 import { sound } from '../../utils/sound';
 
 interface VariantPickerSheetProps {
@@ -56,7 +56,9 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
   if (!isOpen || !item) return null;
 
   const basePrice = selectedVariant ? selectedVariant.price : item.basePrice;
-  const flavourSurcharge = selectedFlavour ? selectedFlavour.surcharge : 0;
+  const flavourSurcharge = selectedFlavour
+    ? getEffectiveFlavourSurcharge(selectedFlavour.surcharge, selectedVariant?.name)
+    : 0;
   const unitPrice = basePrice + flavourSurcharge;
   const totalPrice = unitPrice * quantity;
 
@@ -149,12 +151,20 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
                   Signature Flavour
                 </label>
                 <span className="text-[11px] text-black/80">
-                  Flavoured: +{formatCurrency(item.flavours.find((f) => f.surcharge > 0)?.surcharge || 10)}
+                  {(() => {
+                    const base = item.flavours.find((f) => f.surcharge > 0)?.surcharge || 10;
+                    const effective = getEffectiveFlavourSurcharge(base, selectedVariant?.name);
+                    return `Flavoured: +${formatCurrency(effective)} (${formatCurrency(base)}/qtr)`;
+                  })()}
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {item.flavours.map((flv) => {
                   const isSelected = selectedFlavour?.id === flv.id;
+                  const effectiveSurcharge = getEffectiveFlavourSurcharge(
+                    flv.surcharge,
+                    selectedVariant?.name
+                  );
                   return (
                     <button
                       key={flv.id}
@@ -172,7 +182,7 @@ export const VariantPickerSheet: React.FC<VariantPickerSheetProps> = ({
                       <div>
                         <div className="font-bold text-xs">{flv.name}</div>
                         <div className="text-[10px]">
-                          {flv.surcharge > 0 ? `+${formatCurrency(flv.surcharge)}` : 'Standard'}
+                          {effectiveSurcharge > 0 ? `+${formatCurrency(effectiveSurcharge)}` : 'Standard'}
                         </div>
                       </div>
                       {isSelected && <Check className="w-4 h-4 stroke-[3] shrink-0" />}

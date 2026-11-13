@@ -13,7 +13,7 @@ import {
 } from './types';
 import { storage } from './utils/storage';
 import { sound } from './utils/sound';
-import { formatCurrency } from './utils/format';
+import { formatCurrency, getEffectiveFlavourSurcharge } from './utils/format';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { PinModal } from './components/PinModal';
@@ -115,7 +115,9 @@ export default function App() {
     sound.playTap(settings.soundEnabled);
 
     const variantPrice = variant ? variant.price : item.basePrice;
-    const flavourSurcharge = flavour ? flavour.surcharge : 0;
+    const flavourSurcharge = flavour
+      ? getEffectiveFlavourSurcharge(flavour.surcharge, variant?.name)
+      : 0;
     const unitPrice = variantPrice + flavourSurcharge;
 
     const cartItemId = `${item.id}-${variant?.id || 'base'}-${flavour?.id || 'plain'}-${notes || ''}`;
