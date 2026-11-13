@@ -292,19 +292,19 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
   });
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 pb-24 space-y-4 select-none font-serif text-white bg-black">
+    <div className="max-w-5xl mx-auto p-3 sm:p-6 pb-28 space-y-4 select-none font-serif text-black bg-white">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black border border-white p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border-2 border-black p-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-black">
               MENU MANAGEMENT
             </h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 border border-white uppercase">
+            <span className="text-[10px] font-bold px-2 py-0.5 border border-black text-black uppercase">
               [OWNER MODE]
             </span>
           </div>
-          <p className="text-xs text-white/70 mt-1">
+          <p className="text-xs text-black/70 mt-1">
             Add items, configure sizes/flavours (+₹10), reorder, bulk adjust prices, or edit categories.
           </p>
         </div>
@@ -317,16 +317,16 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               setIsCreatingNewItem(true);
               setEditingItem(null);
             }}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-black hover:bg-white/90 text-xs font-bold border border-white transition-colors min-h-[44px]"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 text-xs font-bold border border-red-600 transition-colors min-h-[44px] shadow-sm"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>+ Add New Item</span>
+            <span>Add New Item</span>
           </button>
         )}
       </div>
 
       {/* Admin Subtabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 bg-black border border-white text-xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 bg-white border border-black text-xs">
         {[
           { id: 'items' as const, label: 'Menu Items', count: items.length },
           { id: 'categories' as const, label: 'Categories', count: categories.length },
@@ -340,13 +340,13 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
             onClick={() => setActiveAdminTab(tab.id)}
             className={`px-3 py-2 font-bold uppercase transition-colors whitespace-nowrap flex items-center gap-1.5 min-h-[40px] ${
               activeAdminTab === tab.id
-                ? 'bg-white text-black'
-                : 'bg-black text-white hover:bg-white/10'
+                ? 'bg-red-600 text-white'
+                : 'bg-white text-black hover:bg-black/5'
             }`}
           >
             <span>{tab.label}</span>
             {tab.count !== undefined && (
-              <span className={`text-[10px] px-1.5 py-0.2 border ${activeAdminTab === tab.id ? 'border-black' : 'border-white'}`}>
+              <span className={`text-[10px] px-1.5 py-0.2 border ${activeAdminTab === tab.id ? 'border-white bg-white text-red-600' : 'border-black text-black'}`}>
                 {tab.count}
               </span>
             )}
@@ -361,10 +361,10 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
             <button
               onClick={() => setSelectedCatFilter('all')}
-              className={`px-3 py-1.5 text-xs font-bold uppercase transition-colors whitespace-nowrap border ${
+              className={`px-3 py-1.5 text-xs font-bold uppercase transition-colors whitespace-nowrap border min-h-[38px] ${
                 selectedCatFilter === 'all'
-                  ? 'bg-white text-black border-white'
-                  : 'bg-black text-white border-white/40 hover:border-white'
+                  ? 'bg-red-600 text-white border-red-600'
+                  : 'bg-white text-black border-black hover:bg-black/5'
               }`}
             >
               All ({items.length})
@@ -373,10 +373,10 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               <button
                 key={c.id}
                 onClick={() => setSelectedCatFilter(c.id)}
-                className={`px-3 py-1.5 text-xs font-bold uppercase transition-colors whitespace-nowrap flex items-center gap-1 border ${
+                className={`px-3 py-1.5 text-xs font-bold uppercase transition-colors whitespace-nowrap flex items-center gap-1 border min-h-[38px] ${
                   selectedCatFilter === c.id
-                    ? 'bg-white text-black border-white'
-                    : 'bg-black text-white border-white/40 hover:border-white'
+                    ? 'bg-red-600 text-white border-red-600'
+                    : 'bg-white text-black border-black hover:bg-black/5'
                 }`}
               >
                 <span>{c.name}</span>
@@ -391,68 +391,70 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               return (
                 <div
                   key={item.id}
-                  className={`p-3.5 sm:p-4 bg-black border transition-colors ${
+                  className={`p-3.5 sm:p-4 bg-white border transition-colors ${
                     item.isOutOfStock
-                      ? 'border-dashed border-white/40 opacity-70'
+                      ? 'border-dashed border-black/50 opacity-75'
                       : item.isHidden
-                      ? 'border-white/30 opacity-50'
-                      : 'border-white hover:border-white'
+                      ? 'border-black/40 opacity-60'
+                      : 'border-black'
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     {/* Item info */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-base font-bold">
+                        <span className="text-base font-bold text-black">
                           {item.name}
                         </span>
                         {item.badge && (
-                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 border border-white">
+                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 border border-black text-black">
                             {item.badge}
                           </span>
                         )}
-                        <span className="text-[10px] font-bold text-white/70 uppercase">
+                        <span className="text-[10px] font-bold text-black/70 uppercase">
                           [{category?.name || 'Uncategorized'}]
                         </span>
                       </div>
 
                       {item.description && (
-                        <p className="text-xs text-white/70 mt-1 line-clamp-1">
+                        <p className="text-xs text-black/70 mt-1 line-clamp-1">
                           {item.description}
                         </p>
                       )}
 
                       {/* Variants & Pricing summary */}
                       <div className="mt-1.5 flex items-center gap-2 flex-wrap text-xs">
-                        <span className="font-bold">
+                        <span className="font-bold text-black">
                           Base: {formatCurrency(item.basePrice)}
                         </span>
                         {item.hasVariants && (
-                          <span className="text-[11px] text-white/80">
+                          <span className="text-[11px] text-black/80">
                             • {item.variants.length} Sizes (
                             {item.variants.map((v) => `${v.name}:${formatCurrency(v.price)}`).join(', ')}
                             )
                           </span>
                         )}
                         {item.hasFlavours && (
-                          <span className="text-[11px] underline">• Flavours (+₹10)</span>
+                          <span className="text-[11px] underline text-black">• Flavours (+₹10)</span>
                         )}
                         {item.isCombo && (
-                          <span className="text-[11px] font-bold">• Combo Box</span>
+                          <span className="text-[11px] font-bold text-black">
+                            • {item.categoryId === 'cat-meal-box' ? 'Meal Box' : 'Combo Box'}
+                          </span>
                         )}
                       </div>
                     </div>
 
                     {/* Quick Toggles and Actions */}
-                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0 border-t sm:border-t-0 border-white/20">
+                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap pt-2 sm:pt-0 border-t sm:border-t-0 border-black/20">
                       {/* Out of Stock Button */}
                       <button
                         type="button"
                         onClick={() => handleToggleStock(item.id)}
-                        className={`px-3 py-1.5 text-xs font-bold uppercase transition-colors border border-white min-h-[38px] ${
+                        className={`px-3 py-1.5 text-xs font-bold uppercase transition-colors border min-h-[38px] ${
                           item.isOutOfStock
-                            ? 'bg-white text-black'
-                            : 'bg-black text-white hover:bg-white hover:text-black'
+                            ? 'bg-black text-white border-black'
+                            : 'bg-white text-black border-black hover:bg-black/5'
                         }`}
                       >
                         {item.isOutOfStock ? 'Sold Out' : 'In Stock'}
@@ -463,7 +465,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                         type="button"
                         onClick={() => handleToggleHide(item.id)}
                         title={item.isHidden ? 'Show in POS' : 'Hide from POS'}
-                        className="w-9 h-9 bg-black hover:bg-white hover:text-black text-white border border-white flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
+                        className="w-9 h-9 bg-white hover:bg-black hover:text-white text-black border border-black flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
                       >
                         {item.isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -473,7 +475,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                         type="button"
                         onClick={() => handleMoveItem(item.id, 'up')}
                         disabled={idx === 0}
-                        className="w-9 h-9 bg-black hover:bg-white hover:text-black disabled:opacity-30 text-white border border-white flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
+                        className="w-9 h-9 bg-white hover:bg-black hover:text-white disabled:opacity-30 text-black border border-black flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
@@ -481,7 +483,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                         type="button"
                         onClick={() => handleMoveItem(item.id, 'down')}
                         disabled={idx === filteredItems.length - 1}
-                        className="w-9 h-9 bg-black hover:bg-white hover:text-black disabled:opacity-30 text-white border border-white flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
+                        className="w-9 h-9 bg-white hover:bg-black hover:text-white disabled:opacity-30 text-black border border-black flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
                       >
                         <ArrowDown className="w-4 h-4" />
                       </button>
@@ -491,19 +493,19 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                         type="button"
                         onClick={() => handleDuplicateItem(item)}
                         title="Duplicate item"
-                        className="w-9 h-9 bg-black hover:bg-white hover:text-black text-white border border-white flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
+                        className="w-9 h-9 bg-white hover:bg-black hover:text-white text-black border border-black flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
 
-                      {/* Edit */}
+                      {/* Edit (RED) */}
                       <button
                         type="button"
                         onClick={() => {
                           setEditingItem(item);
                           setIsCreatingNewItem(false);
                         }}
-                        className="px-3 py-1.5 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold flex items-center gap-1 min-h-[38px] transition-colors"
+                        className="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold flex items-center gap-1 min-h-[38px] transition-colors"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -513,7 +515,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                       <button
                         type="button"
                         onClick={() => handleDeleteItem(item.id)}
-                        className="w-9 h-9 bg-black hover:bg-white hover:text-black text-white border border-white flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
+                        className="w-9 h-9 bg-white hover:bg-red-600 hover:text-white hover:border-red-600 text-red-600 border border-black flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -529,8 +531,8 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
       {/* TAB 2: CATEGORIES */}
       {activeAdminTab === 'categories' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-white/70">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-xs text-black/70">
               Change category display order in POS tabs.
             </span>
             <button
@@ -541,10 +543,10 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                 setCatNameInput('');
                 setCatIconInput('🍗');
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors min-h-[40px]"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Add Category</span>
+              <span>Add Category</span>
             </button>
           </div>
 
@@ -554,12 +556,12 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               return (
                 <div
                   key={cat.id}
-                  className="p-3.5 bg-black border border-white flex items-center justify-between gap-3"
+                  className="p-3.5 bg-white border border-black flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap"
                 >
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-sm font-bold uppercase">{cat.name}</h4>
-                      <span className="text-xs text-white/70">
+                      <h4 className="text-sm font-bold uppercase text-black">{cat.name}</h4>
+                      <span className="text-xs text-black/70">
                         {count} {count === 1 ? 'item' : 'items'}
                       </span>
                     </div>
@@ -571,7 +573,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                       type="button"
                       onClick={() => handleMoveCategory(cat.id, 'up')}
                       disabled={idx === 0}
-                      className="w-8 h-8 bg-black hover:bg-white hover:text-black border border-white disabled:opacity-30 text-white flex items-center justify-center transition-colors"
+                      className="w-8 h-8 bg-white hover:bg-black hover:text-white border border-black disabled:opacity-30 text-black flex items-center justify-center transition-colors"
                     >
                       <ArrowUp className="w-4 h-4" />
                     </button>
@@ -579,7 +581,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                       type="button"
                       onClick={() => handleMoveCategory(cat.id, 'down')}
                       disabled={idx === categories.length - 1}
-                      className="w-8 h-8 bg-black hover:bg-white hover:text-black border border-white disabled:opacity-30 text-white flex items-center justify-center transition-colors"
+                      className="w-8 h-8 bg-white hover:bg-black hover:text-white border border-black disabled:opacity-30 text-black flex items-center justify-center transition-colors"
                     >
                       <ArrowDown className="w-4 h-4" />
                     </button>
@@ -593,7 +595,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                         setCatNameInput(cat.name);
                         setCatIconInput(cat.icon || '🍗');
                       }}
-                      className="px-2.5 py-1.5 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold transition-colors"
+                      className="px-2.5 py-1.5 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold transition-colors"
                     >
                       Rename
                     </button>
@@ -602,7 +604,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => setDeletingCategory(cat)}
-                      className="w-8 h-8 bg-black hover:bg-white hover:text-black border border-white text-white flex items-center justify-center transition-colors"
+                      className="w-8 h-8 bg-white hover:bg-red-600 hover:text-white hover:border-red-600 border border-black text-red-600 flex items-center justify-center transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -616,10 +618,10 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
       {/* TAB 3: BULK PRICE UPDATE */}
       {activeAdminTab === 'bulk' && (
-        <div className="p-5 bg-black border border-white space-y-4 max-w-xl">
+        <div className="p-4 sm:p-5 bg-white border border-black space-y-4 max-w-xl">
           <div>
-            <h3 className="text-base font-bold uppercase">Bulk Price Adjustment</h3>
-            <p className="text-xs text-white/70 mt-1">
+            <h3 className="text-base font-bold uppercase text-black">Bulk Price Adjustment</h3>
+            <p className="text-xs text-black/70 mt-1">
               Adjust prices across all items or a category by flat ₹ amount or percentage %.
             </p>
           </div>
@@ -631,7 +633,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               <select
                 value={bulkCategory}
                 onChange={(e) => setBulkCategory(e.target.value)}
-                className="w-full bg-black border border-white px-3 py-2 text-white focus:outline-none"
+                className="w-full bg-white border border-black px-3 py-2 text-black focus:outline-none"
               >
                 <option value="all">Entire Menu (All Categories)</option>
                 {categories.map((c) => (
@@ -643,17 +645,17 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
             </div>
 
             {/* Direction & Amount */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="font-bold block mb-1 uppercase">Action</label>
-                <div className="grid grid-cols-2 gap-1 p-0.5 border border-white">
+                <div className="grid grid-cols-2 gap-1 p-0.5 border border-black bg-white">
                   <button
                     type="button"
                     onClick={() => setBulkDirection('increase')}
                     className={`py-1.5 font-bold uppercase ${
                       bulkDirection === 'increase'
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-white text-black'
                     }`}
                   >
                     Increase (+)
@@ -663,8 +665,8 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                     onClick={() => setBulkDirection('decrease')}
                     className={`py-1.5 font-bold uppercase ${
                       bulkDirection === 'decrease'
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-white text-black'
                     }`}
                   >
                     Decrease (-)
@@ -674,14 +676,14 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
               <div>
                 <label className="font-bold block mb-1 uppercase">Type</label>
-                <div className="grid grid-cols-2 gap-1 p-0.5 border border-white">
+                <div className="grid grid-cols-2 gap-1 p-0.5 border border-black bg-white">
                   <button
                     type="button"
                     onClick={() => setBulkType('flat')}
                     className={`py-1.5 font-bold uppercase ${
                       bulkType === 'flat'
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-white text-black'
                     }`}
                   >
                     Flat ₹
@@ -691,8 +693,8 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                     onClick={() => setBulkType('percent')}
                     className={`py-1.5 font-bold uppercase ${
                       bulkType === 'percent'
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-white text-black'
                     }`}
                   >
                     %
@@ -711,7 +713,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                 min="1"
                 value={bulkAmount}
                 onChange={(e) => setBulkAmount(Number(e.target.value) || 0)}
-                className="w-full bg-black border border-white px-3 py-2 text-white text-sm"
+                className="w-full bg-white border border-black px-3 py-2 text-black text-sm"
               />
             </div>
 
@@ -719,7 +721,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
             <button
               type="button"
               onClick={handleApplyBulkPrice}
-              className="w-full py-3 bg-white text-black hover:bg-white/90 border border-white font-bold text-sm transition-colors mt-2 uppercase"
+              className="w-full py-3 bg-red-600 text-white hover:bg-red-700 border border-red-600 font-bold text-sm transition-colors mt-2 uppercase min-h-[44px]"
             >
               Apply Bulk Price Update
             </button>
@@ -729,10 +731,10 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
       {/* TAB 4: FLAVOURS & ADDONS */}
       {activeAdminTab === 'flavours' && (
-        <div className="p-5 bg-black border border-white space-y-4 max-w-xl">
+        <div className="p-4 sm:p-5 bg-white border border-black space-y-4 max-w-xl">
           <div>
-            <h3 className="text-base font-bold uppercase">Signature Flavours &amp; Surcharges</h3>
-            <p className="text-xs text-white/70 mt-1">
+            <h3 className="text-base font-bold uppercase text-black">Signature Flavours &amp; Surcharges</h3>
+            <p className="text-xs text-black/70 mt-1">
               Flavours for BBQ Chicken &amp; specials with automatic surcharge calculation (+₹10 default).
             </p>
           </div>
@@ -741,11 +743,11 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
             {flavourList.map((flv, idx) => (
               <div
                 key={flv.id}
-                className="p-3 border border-white bg-black flex items-center justify-between text-xs"
+                className="p-3 border border-black bg-white flex items-center justify-between text-xs"
               >
                 <div>
-                  <div className="font-bold">{flv.name}</div>
-                  <div className="text-white/70 text-[11px]">
+                  <div className="font-bold text-black">{flv.name}</div>
+                  <div className="text-black/70 text-[11px]">
                     Surcharge: +{formatCurrency(flv.surcharge)}
                   </div>
                 </div>
@@ -758,7 +760,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                         const updated = flavourList.filter((f) => f.id !== flv.id);
                         setFlavourList(updated);
                       }}
-                      className="text-white hover:underline p-1"
+                      className="text-red-600 hover:underline p-1"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -769,24 +771,24 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
           </div>
 
           {/* Add New Flavour */}
-          <div className="p-3 border border-white space-y-2 text-xs">
-            <span className="font-bold uppercase block">Add New Flavour</span>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 border border-black space-y-2 text-xs bg-white">
+            <span className="font-bold uppercase block text-black">Add New Flavour</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="text"
                 placeholder="Flavour name (e.g. Smoky Hickory)"
                 value={newFlavourName}
                 onChange={(e) => setNewFlavourName(e.target.value)}
-                className="bg-black border border-white px-2.5 py-1.5 text-white text-xs"
+                className="bg-white border border-black px-2.5 py-1.5 text-black text-xs"
               />
               <div className="flex items-center gap-1">
-                <span className="text-white/70">₹</span>
+                <span className="text-black/70">₹</span>
                 <input
                   type="number"
                   placeholder="Surcharge"
                   value={newFlavourSurcharge}
                   onChange={(e) => setNewFlavourSurcharge(Number(e.target.value) || 0)}
-                  className="w-full bg-black border border-white px-2.5 py-1.5 text-white text-xs"
+                  className="w-full bg-white border border-black px-2.5 py-1.5 text-black text-xs"
                 />
               </div>
             </div>
@@ -803,7 +805,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                 setNewFlavourName('');
                 setNewFlavourSurcharge(10);
               }}
-              className="w-full py-2 bg-white text-black hover:bg-white/90 border border-white font-bold text-xs uppercase transition-colors"
+              className="w-full py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 font-bold text-xs uppercase transition-colors"
             >
               + Add Flavour
             </button>
@@ -814,16 +816,16 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
       {/* TAB 5: IMPORT / EXPORT & RESET */}
       {activeAdminTab === 'data' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-5 bg-black border border-white space-y-3">
-            <h3 className="text-base font-bold uppercase">Export Menu</h3>
-            <p className="text-xs text-white/70">
+          <div className="p-5 bg-white border border-black space-y-3">
+            <h3 className="text-base font-bold uppercase text-black">Export Menu</h3>
+            <p className="text-xs text-black/70">
               Download your full menu configuration to keep safe backups or open in Excel.
             </p>
             <div className="space-y-2 pt-2">
               <button
                 type="button"
                 onClick={handleExportJson}
-                className="w-full py-2.5 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors uppercase"
+                className="w-full py-2.5 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold flex items-center justify-center gap-2 transition-colors uppercase min-h-[42px]"
               >
                 <Download className="w-4 h-4" />
                 <span>Download Menu (JSON)</span>
@@ -831,7 +833,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               <button
                 type="button"
                 onClick={handleExportCsv}
-                className="w-full py-2.5 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors uppercase"
+                className="w-full py-2.5 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold flex items-center justify-center gap-2 transition-colors uppercase min-h-[42px]"
               >
                 <Download className="w-4 h-4" />
                 <span>Download Menu (CSV Spreadsheet)</span>
@@ -839,13 +841,13 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
             </div>
           </div>
 
-          <div className="p-5 bg-black border border-white space-y-3">
-            <h3 className="text-base font-bold uppercase">Import / Restore</h3>
-            <p className="text-xs text-white/70">
+          <div className="p-5 bg-white border border-black space-y-3">
+            <h3 className="text-base font-bold uppercase text-black">Import / Restore</h3>
+            <p className="text-xs text-black/70">
               Load an existing menu file or reset to the pre-loaded starting menu.
             </p>
             <div className="space-y-2 pt-2">
-              <label className="w-full py-2.5 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors uppercase">
+              <label className="w-full py-2.5 bg-red-600 hover:bg-red-700 border border-red-600 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors uppercase min-h-[42px]">
                 <Upload className="w-4 h-4" />
                 <span>Upload Menu (JSON)</span>
                 <input
@@ -859,7 +861,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               <button
                 type="button"
                 onClick={handleResetToDefault}
-                className="w-full py-2.5 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors uppercase"
+                className="w-full py-2.5 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold flex items-center justify-center gap-2 transition-colors uppercase min-h-[42px]"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Reset Menu to Default Starting Items</span>
@@ -899,10 +901,10 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
       {/* CATEGORY ADD/EDIT MODAL */}
       {(isCreatingCategory || editingCategory) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-          <div className="w-full max-w-sm bg-black border-2 border-white p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-white pb-2">
-              <h3 className="text-base font-bold uppercase">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm bg-white text-black border-2 border-black p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-black pb-2">
+              <h3 className="text-base font-bold uppercase text-black">
                 {isCreatingCategory ? 'Add Category' : 'Rename Category'}
               </h3>
               <button
@@ -910,7 +912,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                   setEditingCategory(null);
                   setIsCreatingCategory(false);
                 }}
-                className="text-white hover:opacity-70"
+                className="text-black hover:opacity-70"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -923,8 +925,8 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                   type="text"
                   value={catNameInput}
                   onChange={(e) => setCatNameInput(e.target.value)}
-                  placeholder="e.g. Seafood Specials, Burgers"
-                  className="w-full bg-black border border-white px-3 py-2 text-white"
+                  placeholder="e.g. Seafood Specials, Meal Box"
+                  className="w-full bg-white border border-black px-3 py-2 text-black"
                 />
               </div>
 
@@ -936,7 +938,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                   onChange={(e) => setCatIconInput(e.target.value)}
                   placeholder="TAG"
                   maxLength={5}
-                  className="w-24 bg-black border border-white p-2 text-center text-white"
+                  className="w-24 bg-white border border-black p-2 text-center text-black"
                 />
               </div>
             </div>
@@ -948,14 +950,14 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                   setEditingCategory(null);
                   setIsCreatingCategory(false);
                 }}
-                className="flex-1 py-2 bg-black hover:bg-white hover:text-black border border-white text-xs font-bold transition-colors uppercase"
+                className="flex-1 py-2.5 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors uppercase"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveCategory}
-                className="flex-1 py-2 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold transition-colors uppercase"
+                className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors uppercase"
               >
                 Save
               </button>
@@ -966,25 +968,25 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
 
       {/* CATEGORY DELETE MODAL */}
       {deletingCategory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-          <div className="w-full max-w-sm bg-black border-2 border-white p-5 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm bg-white text-black border-2 border-black p-5 space-y-4 shadow-2xl">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 shrink-0" />
-              <h3 className="text-base font-bold uppercase">Delete "{deletingCategory.name}"?</h3>
+              <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
+              <h3 className="text-base font-bold uppercase text-black">Delete "{deletingCategory.name}"?</h3>
             </div>
 
-            <p className="text-xs text-white/80 leading-relaxed">
+            <p className="text-xs text-black/80 leading-relaxed">
               This category contains items. What would you like to do with them?
             </p>
 
             <div className="space-y-2 text-xs">
-              <label className="text-white/70 block font-bold uppercase">
+              <label className="text-black/70 block font-bold uppercase">
                 Move items to another category:
               </label>
               <select
                 value={moveTargetCatId}
                 onChange={(e) => setMoveTargetCatId(e.target.value)}
-                className="w-full bg-black border border-white px-3 py-2 text-white"
+                className="w-full bg-white border border-black px-3 py-2 text-black"
               >
                 {categories
                   .filter((c) => c.id !== deletingCategory.id)
@@ -1000,21 +1002,21 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
               <button
                 type="button"
                 onClick={() => handleConfirmDeleteCategory('move')}
-                className="w-full py-2.5 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold transition-colors uppercase"
+                className="w-full py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors uppercase"
               >
                 Move Items &amp; Delete Category
               </button>
               <button
                 type="button"
                 onClick={() => handleConfirmDeleteCategory('delete')}
-                className="w-full py-2 bg-black hover:bg-white hover:text-black text-white text-xs font-bold border border-white transition-colors uppercase"
+                className="w-full py-2 bg-white hover:bg-black hover:text-white text-black text-xs font-bold border border-black transition-colors uppercase"
               >
                 Delete Category &amp; All Items
               </button>
               <button
                 type="button"
                 onClick={() => setDeletingCategory(null)}
-                className="w-full py-1.5 text-xs text-white/70 hover:text-white uppercase font-bold"
+                className="w-full py-1.5 text-xs text-black/70 hover:text-black uppercase font-bold"
               >
                 Cancel
               </button>
@@ -1116,14 +1118,14 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-3 sm:p-4 font-serif text-white">
-      <div className="w-full max-w-lg bg-black border-2 border-white flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 font-serif text-black">
+      <div className="w-full max-w-lg bg-white border-2 border-black flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="px-5 py-3.5 border-b border-white flex items-center justify-between">
-          <h3 className="text-base font-bold uppercase">
+        <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-white">
+          <h3 className="text-base font-bold uppercase text-black">
             {item ? `Edit Item: ${item.name}` : 'Create New Menu Item'}
           </h3>
-          <button onClick={onClose} className="text-white hover:opacity-70">
+          <button onClick={onClose} className="text-black hover:opacity-70">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1140,7 +1142,7 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Alfaham BBQ"
-                className="w-full bg-black border border-white px-3 py-2 text-white"
+                className="w-full bg-white border border-black px-3 py-2 text-black"
               />
             </div>
 
@@ -1149,7 +1151,7 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-black border border-white px-3 py-2 text-white"
+                className="w-full bg-white border border-black px-3 py-2 text-black"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -1169,7 +1171,7 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="e.g. Charcoal roasted juicy chicken"
-                className="w-full bg-black border border-white px-3 py-2 text-white"
+                className="w-full bg-white border border-black px-3 py-2 text-black"
               />
             </div>
             <div>
@@ -1179,7 +1181,7 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                 value={badge}
                 onChange={(e) => setBadge(e.target.value)}
                 placeholder="POPULAR"
-                className="w-full bg-black border border-white px-3 py-2 text-white"
+                className="w-full bg-white border border-black px-3 py-2 text-black"
               />
             </div>
           </div>
@@ -1189,24 +1191,24 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
             <div>
               <label className="font-bold block mb-1 uppercase">Price (₹) *</label>
               <div className="flex items-center gap-1.5 max-w-[200px]">
-                <span className="text-white/70">₹</span>
+                <span className="text-black/70">₹</span>
                 <input
                   type="number"
                   min="0"
                   value={basePrice}
                   onChange={(e) => setBasePrice(Number(e.target.value) || 0)}
-                  className="w-full bg-black border border-white px-3 py-2 text-white font-bold"
+                  className="w-full bg-white border border-black px-3 py-2 text-black font-bold"
                 />
               </div>
             </div>
           )}
 
           {/* Variants Toggle & Editor */}
-          <div className="p-3.5 border border-white space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="p-3.5 border border-black space-y-3 bg-white">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <span className="font-bold uppercase block">Multiple Sizes / Variants</span>
-                <span className="text-[11px] text-white/70">
+                <span className="font-bold uppercase block text-black">Multiple Sizes / Variants</span>
+                <span className="text-[11px] text-black/70">
                   e.g. Quarter, Half, Full or Plain, Flavoured
                 </span>
               </div>
@@ -1214,12 +1216,12 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                 type="checkbox"
                 checked={hasVariants}
                 onChange={(e) => setHasVariants(e.target.checked)}
-                className="w-4 h-4 accent-white"
+                className="w-4 h-4 accent-red-600 shrink-0"
               />
             </div>
 
             {hasVariants && (
-              <div className="space-y-2 pt-2 border-t border-white/40">
+              <div className="space-y-2 pt-2 border-t border-black/30">
                 {variants.map((v, idx) => (
                   <div key={v.id || idx} className="flex items-center gap-2">
                     <input
@@ -1231,10 +1233,10 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                         setVariants(updated);
                       }}
                       placeholder="Size name"
-                      className="flex-1 bg-black border border-white px-2.5 py-1.5 text-white"
+                      className="flex-1 min-w-0 bg-white border border-black px-2.5 py-1.5 text-black"
                     />
-                    <div className="flex items-center gap-1 w-28">
-                      <span className="text-white/70">₹</span>
+                    <div className="flex items-center gap-1 w-24 sm:w-28 shrink-0">
+                      <span className="text-black/70">₹</span>
                       <input
                         type="number"
                         min="0"
@@ -1244,14 +1246,14 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                           updated[idx].price = Number(e.target.value) || 0;
                           setVariants(updated);
                         }}
-                        className="w-full bg-black border border-white px-2 py-1.5 text-white font-bold"
+                        className="w-full bg-white border border-black px-2 py-1.5 text-black font-bold"
                       />
                     </div>
                     {variants.length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveVariant(v.id)}
-                        className="text-white hover:underline p-1"
+                        className="text-red-600 hover:underline p-1 shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1262,7 +1264,7 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                 <button
                   type="button"
                   onClick={handleAddVariant}
-                  className="text-white underline text-xs font-bold pt-1 block uppercase"
+                  className="text-red-600 underline text-xs font-bold pt-1 block uppercase"
                 >
                   + Add Another Size Variant
                 </button>
@@ -1271,10 +1273,10 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
           </div>
 
           {/* Flavours Checkbox */}
-          <div className="p-3.5 border border-white flex items-center justify-between">
+          <div className="p-3.5 border border-black flex items-center justify-between gap-3 bg-white">
             <div>
-              <span className="font-bold uppercase block">Enable Signature Flavours (+₹10)</span>
-              <span className="text-[11px] text-white/70">
+              <span className="font-bold uppercase block text-black">Enable Signature Flavours (+₹10)</span>
+              <span className="text-[11px] text-black/70">
                 Allow customer to choose Peri Peri, Schezwan, Garlic, Honey
               </span>
             </div>
@@ -1282,44 +1284,44 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
               type="checkbox"
               checked={hasFlavours}
               onChange={(e) => setHasFlavours(e.target.checked)}
-              className="w-4 h-4 accent-white"
+              className="w-4 h-4 accent-red-600 shrink-0"
             />
           </div>
 
-          {/* Combo Box Checkbox */}
-          <div className="p-3.5 border border-white space-y-3">
-            <div className="flex items-center justify-between">
+          {/* Combo / Meal Box Checkbox */}
+          <div className="p-3.5 border border-black space-y-3 bg-white">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <span className="font-bold uppercase block">Combo Box Package</span>
-                <span className="text-[11px] text-white/70">
-                  Bundle multiple item components inside one combo price
+                <span className="font-bold uppercase block text-black">Combo / Meal Box Package</span>
+                <span className="text-[11px] text-black/70">
+                  Bundle multiple item components inside one box price
                 </span>
               </div>
               <input
                 type="checkbox"
                 checked={isCombo}
                 onChange={(e) => setIsCombo(e.target.checked)}
-                className="w-4 h-4 accent-white"
+                className="w-4 h-4 accent-red-600 shrink-0"
               />
             </div>
 
             {isCombo && (
-              <div className="space-y-2 pt-2 border-t border-white/40">
+              <div className="space-y-2 pt-2 border-t border-black/30">
                 {comboDetails.map((cd, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <input
                       type="text"
-                      placeholder="Component item (e.g. 2 Wings)"
+                      placeholder="Component item (e.g. Kuboos)"
                       value={cd.itemName}
                       onChange={(e) => {
                         const copy = [...comboDetails];
                         copy[idx].itemName = e.target.value;
                         setComboDetails(copy);
                       }}
-                      className="flex-1 bg-black border border-white px-2.5 py-1.5 text-white"
+                      className="flex-1 min-w-0 bg-white border border-black px-2.5 py-1.5 text-black"
                     />
-                    <div className="flex items-center gap-1 w-20">
-                      <span className="text-white/70">Qty:</span>
+                    <div className="flex items-center gap-1 w-20 shrink-0">
+                      <span className="text-black/70">Qty:</span>
                       <input
                         type="number"
                         min="1"
@@ -1329,13 +1331,13 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                           copy[idx].quantity = Number(e.target.value) || 1;
                           setComboDetails(copy);
                         }}
-                        className="w-full bg-black border border-white px-2 py-1.5 text-white font-bold"
+                        className="w-full bg-white border border-black px-2 py-1.5 text-black font-bold"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveComboComponent(idx)}
-                      className="text-white hover:underline p-1"
+                      className="text-red-600 hover:underline p-1 shrink-0"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1345,25 +1347,25 @@ const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
                 <button
                   type="button"
                   onClick={handleAddComboComponent}
-                  className="text-white underline text-xs font-bold pt-1 block uppercase"
+                  className="text-red-600 underline text-xs font-bold pt-1 block uppercase"
                 >
-                  + Add Combo Component
+                  + Add Box Component
                 </button>
               </div>
             )}
           </div>
 
-          <div className="p-4 border-t border-white flex items-center gap-2 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 mt-4">
+          <div className="p-4 border-t-2 border-black flex items-center gap-2 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 mt-4 bg-white pb-safe">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-black hover:bg-white hover:text-black border border-white text-xs font-bold transition-colors uppercase"
+              className="flex-1 py-2.5 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors uppercase min-h-[44px]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold transition-colors uppercase"
+              className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors uppercase min-h-[44px]"
             >
               Save Item
             </button>

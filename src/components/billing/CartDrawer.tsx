@@ -540,7 +540,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs lg:hidden animate-in fade-in duration-150">
-      <div className="w-full max-w-lg h-[92vh] max-h-[800px] overflow-hidden shadow-2xl flex flex-col border-t-2 border-black bg-white animate-in slide-in-from-bottom duration-200">
+      <div className="w-full max-w-lg h-[92dvh] max-h-[820px] overflow-hidden shadow-2xl flex flex-col border-t-2 border-black bg-white animate-in slide-in-from-bottom duration-200">
         {content}
       </div>
     </div>

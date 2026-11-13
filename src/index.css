@@ -133,10 +133,24 @@
   font-size: 12px;
 }
 
-/* Safe area utilities */
+/* Safe area utilities & mobile helpers */
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 1rem);
+  padding-bottom: env(safe-area-inset-bottom, 0.75rem);
 }
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0.5rem);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
 }

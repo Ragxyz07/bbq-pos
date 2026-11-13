@@ -10,6 +10,7 @@ const STORAGE_KEYS = {
   LAST_BILL_NUMBER: 'bbq_pos_last_bill_no_v1',
   TOKEN_TRACKER: 'bbq_pos_token_tracker_v1',
   SAVED_CART: 'bbq_pos_saved_cart_v1',
+  MIGRATED_MEALBOX: 'bbq_pos_migrated_mealbox_v1',
 };
 
 // Safe JSON parser
@@ -40,6 +41,15 @@ export const storage = {
       safeSet(STORAGE_KEYS.CATEGORIES, SEED_CATEGORIES);
       return SEED_CATEGORIES;
     }
+
+    // One-time migration to ensure Meal Box category is available for existing users
+    const mealBoxCat = SEED_CATEGORIES.find((c) => c.id === 'cat-meal-box');
+    if (mealBoxCat && !data.some((c) => c.id === 'cat-meal-box') && !localStorage.getItem(STORAGE_KEYS.MIGRATED_MEALBOX)) {
+      const updatedCats = [...data, mealBoxCat];
+      safeSet(STORAGE_KEYS.CATEGORIES, updatedCats);
+      return updatedCats.sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
     return data.sort((a, b) => a.sortOrder - b.sortOrder);
   },
 
@@ -51,11 +61,12 @@ export const storage = {
     const data = safeGet<MenuItem[] | null>(STORAGE_KEYS.MENU_ITEMS, null);
     if (!data || data.length === 0) {
       safeSet(STORAGE_KEYS.MENU_ITEMS, SEED_MENU_ITEMS);
+      localStorage.setItem(STORAGE_KEYS.MIGRATED_MEALBOX, '1');
       return SEED_MENU_ITEMS;
     }
     // Auto-migrate any previously saved 20 surcharge flavours to 10
     let hasMigration = false;
-    const migrated = data.map((item) => {
+    let migrated = data.map((item) => {
       if (item.hasFlavours && item.flavours) {
         const updatedFlavours = item.flavours.map((flv) => {
           if (flv.surcharge === 20) {
@@ -68,6 +79,18 @@ export const storage = {
       }
       return item;
     });
+
+    // One-time migration to append Meal Box items for existing users
+    if (!localStorage.getItem(STORAGE_KEYS.MIGRATED_MEALBOX)) {
+      const mealBoxItems = SEED_MENU_ITEMS.filter((it) => it.categoryId === 'cat-meal-box');
+      const existingIds = new Set(migrated.map((it) => it.id));
+      const itemsToAdd = mealBoxItems.filter((it) => !existingIds.has(it.id));
+      if (itemsToAdd.length > 0) {
+        migrated = [...migrated, ...itemsToAdd];
+        hasMigration = true;
+      }
+      localStorage.setItem(STORAGE_KEYS.MIGRATED_MEALBOX, '1');
+    }
 
     if (hasMigration) {
       safeSet(STORAGE_KEYS.MENU_ITEMS, migrated);

@@ -107,10 +107,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   return (
     <>
       {/* Interactive Modal UI for the Counter */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 no-print select-none">
-        <div className="w-full max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[95vh] overflow-hidden text-black">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 animate-in fade-in duration-150 no-print select-none">
+        <div className="w-full max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[95dvh] overflow-hidden text-black">
           {/* Header */}
-          <div className="px-5 py-3 border-b-2 border-black flex items-center justify-between bg-white">
+          <div className="px-3 sm:px-5 py-3 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 border border-red-600 bg-red-600 text-white flex items-center justify-center font-bold">
                 ✓
@@ -190,9 +190,9 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           </div>
 
           {/* Paper Bill Preview (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-4 bg-black border-b border-white/40 flex items-center justify-center">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-black/10 border-b border-black/30 flex items-start sm:items-center justify-center">
             <div
-              className={`bg-white text-black p-4 shadow-lg border border-white leading-tight ${
+              className={`bg-white text-black p-4 shadow-md border border-black leading-tight max-w-full ${
                 printerWidth === '58mm' ? 'w-[270px] text-[11px]' : 'w-[340px] text-xs'
               }`}
             >
@@ -392,13 +392,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 placeholder="Customer Phone (10 digits for WhatsApp)"
-                className="flex-1 bg-white border border-black px-3 py-2 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600"
+                className="flex-1 min-w-0 bg-white border border-black px-3 py-2 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600 min-h-[40px]"
               />
               <button
                 type="button"
                 onClick={handleWhatsAppShareText}
                 title="Send as WhatsApp text message"
-                className="px-3 py-2 bg-white hover:bg-black hover:text-white text-black text-xs font-bold flex items-center gap-1 transition-colors border border-black"
+                className="px-3 py-2 bg-white hover:bg-black hover:text-white text-black text-xs font-bold flex items-center gap-1 transition-colors border border-black shrink-0 min-h-[40px]"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Text</span>

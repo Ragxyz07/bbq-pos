@@ -191,9 +191,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-lg bg-white border-t-2 sm:border-2 border-black shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-black">
+      <div className="w-full max-w-lg bg-white border-t-2 sm:border-2 border-black shadow-2xl flex flex-col max-h-[92dvh] overflow-hidden text-black">
         {/* Header */}
-        <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between shrink-0 bg-white">
+        <div className="px-3 sm:px-5 py-3.5 border-b-2 border-black flex items-center justify-between shrink-0 bg-white">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-black border border-black px-2 py-0.5">

@@ -17,7 +17,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   const allCount = Object.values(categoryItemCounts).reduce((acc, curr) => acc + curr, 0);
 
   return (
-    <div className="w-full overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-0 select-none">
+    <div className="w-full overflow-x-auto no-scrollbar py-1.5 -mx-3 px-3 sm:mx-0 sm:px-0 select-none">
       <div className="flex items-center gap-2 min-w-max">
         {/* All Items Tab */}
         <button

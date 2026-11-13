@@ -299,35 +299,35 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 pb-24 space-y-5 font-serif text-white bg-black">
+    <div className="max-w-5xl mx-auto p-3 sm:p-6 pb-28 space-y-4 sm:space-y-5 font-serif text-black bg-white select-none">
       {/* Top Banner with Filter Tabs & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black border border-white p-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-2 border-black p-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-black">
               SALES REPORTS &amp; ANALYTICS
             </h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 border border-white">
+            <span className="text-[10px] font-bold px-2 py-0.5 border border-black text-black">
               [PIN VERIFIED]
             </span>
           </div>
-          <p className="text-xs text-white/70 mt-1">
+          <p className="text-xs text-black/70 mt-1">
             Sales velocity, Hand Cash &amp; GPay reconciliation, top items, and daily closing.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Range Buttons */}
-          <div className="flex border border-white p-0.5 text-xs">
+          <div className="flex border border-black p-0.5 text-xs bg-white overflow-x-auto no-scrollbar max-w-full">
             {(['today', 'weekly', 'monthly', 'all'] as const).map((rng) => (
               <button
                 key={rng}
                 type="button"
                 onClick={() => setTimeRange(rng)}
-                className={`px-3 py-1 font-bold uppercase transition-colors ${
+                className={`px-2.5 sm:px-3 py-1.5 font-bold uppercase transition-colors min-h-[36px] ${
                   timeRange === rng
-                    ? 'bg-white text-black'
-                    : 'bg-black text-white hover:bg-white/10'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-white text-black hover:bg-black/5'
                 }`}
               >
                 {rng}
@@ -338,7 +338,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-white hover:text-black border border-white text-xs font-bold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-black hover:text-white border border-black text-xs font-bold transition-colors min-h-[38px]"
           >
             <Download className="w-3.5 h-3.5" />
             <span>CSV</span>
@@ -347,7 +347,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <button
             type="button"
             onClick={() => setShowDrawerModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-white hover:text-black border border-white text-xs font-bold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-black hover:text-white border border-black text-xs font-bold transition-colors min-h-[38px]"
           >
             <Calculator className="w-3.5 h-3.5" />
             <span>Drawer Closing</span>
@@ -359,7 +359,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               sound.playTap(soundEnabled);
               setShowShareModal(true);
             }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors min-h-[38px] shadow-sm"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>Share Day Sales</span>
@@ -368,53 +368,53 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       </div>
 
       {/* 4 Primary KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 bg-black border border-white flex flex-col justify-between">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-1">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="p-3.5 sm:p-4 bg-white border border-black flex flex-col justify-between">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-black/70 mb-1">
             Total Sales ({timeRange.toUpperCase()})
           </div>
-          <div className="text-xl sm:text-2xl font-bold tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold tabular-nums text-black">
             {formatCurrency(totalRevenue)}
           </div>
-          <div className="text-[10px] text-white/70 mt-1">
+          <div className="text-[10px] text-black/70 mt-1">
             {completedBills.length} orders
           </div>
         </div>
 
-        <div className="p-4 bg-black border border-white flex flex-col justify-between">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-1">
+        <div className="p-3.5 sm:p-4 bg-white border border-black flex flex-col justify-between">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-black/70 mb-1">
             Avg Order Value
           </div>
-          <div className="text-xl sm:text-2xl font-bold tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold tabular-nums text-black">
             {formatCurrency(aov)}
           </div>
-          <div className="text-[10px] text-white/70 mt-1">
+          <div className="text-[10px] text-black/70 mt-1">
             Per paying customer
           </div>
         </div>
 
         {/* Explicit Hand Cash KPI */}
-        <div className="p-4 bg-black border-2 border-white flex flex-col justify-between">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white mb-1">
+        <div className="p-3.5 sm:p-4 bg-white border-2 border-black flex flex-col justify-between">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-black mb-1">
             HAND CASH
           </div>
-          <div className="text-xl sm:text-2xl font-bold tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold tabular-nums text-black">
             {formatCurrency(cashSales)}
           </div>
-          <div className="text-[10px] text-white/70 mt-1">
+          <div className="text-[10px] text-black/70 mt-1">
             {totalRevenue > 0 ? `${Math.round((cashSales / totalRevenue) * 100)}% of sales` : '0%'}
           </div>
         </div>
 
         {/* Explicit GPay / UPI KPI */}
-        <div className="p-4 bg-black border-2 border-white flex flex-col justify-between">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white mb-1">
+        <div className="p-3.5 sm:p-4 bg-white border-2 border-black flex flex-col justify-between">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-black mb-1">
             GPAY / UPI
           </div>
-          <div className="text-xl sm:text-2xl font-bold tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold tabular-nums text-black">
             {formatCurrency(upiSales)}
           </div>
-          <div className="text-[10px] text-white/70 mt-1">
+          <div className="text-[10px] text-black/70 mt-1">
             {totalRevenue > 0 ? `${Math.round((upiSales / totalRevenue) * 100)}%` : '0%'}
             {cardSales > 0 ? ` • Card: ${formatCurrency(cardSales)}` : ''}
           </div>
@@ -424,75 +424,78 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Payment Split & Hourly Rush Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Payment Methods Mix */}
-        <div className="p-4 sm:p-5 bg-black border border-white space-y-4">
-          <div className="flex items-center justify-between border-b border-white/20 pb-2">
-            <h3 className="text-sm font-bold uppercase tracking-wider">
+        <div className="p-4 sm:p-5 bg-white border border-black space-y-4">
+          <div className="flex items-center justify-between border-b border-black/20 pb-2">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-black">
               Payment Breakdown
             </h3>
-            <span className="text-xs text-white/70">
+            <span className="text-xs text-black/70">
               Total {formatCurrency(totalRevenue)}
             </span>
           </div>
 
           {/* Visual Bar */}
-          <div className="h-3 w-full border border-white flex overflow-hidden">
+          <div className="h-3 w-full border border-black flex overflow-hidden bg-white">
             {totalRevenue > 0 ? (
               <>
                 <div
                   style={{ width: `${(cashSales / totalRevenue) * 100}%` }}
-                  className="bg-white h-full"
+                  className="bg-black h-full"
                   title={`Cash: ${formatCurrency(cashSales)}`}
                 />
                 <div
                   style={{ width: `${(upiSales / totalRevenue) * 100}%` }}
-                  className="bg-black border-l border-r border-white h-full"
+                  className="bg-red-600 border-l border-r border-black h-full"
                   title={`UPI: ${formatCurrency(upiSales)}`}
                 />
                 <div
                   style={{ width: `${(cardSales / totalRevenue) * 100}%` }}
-                  className="bg-white/40 h-full"
+                  className="bg-black/30 h-full"
                   title={`Card: ${formatCurrency(cardSales)}`}
                 />
               </>
             ) : (
-              <div className="w-full bg-black" />
+              <div className="w-full bg-white" />
             )}
           </div>
 
           {/* Legend Items */}
           <div className="grid grid-cols-3 gap-2 pt-1 text-xs">
-            <div className="p-2.5 border border-white bg-black">
-              <div className="font-bold mb-0.5 uppercase text-[11px]">
-                Hand Cash
+            <div className="p-2.5 border border-black bg-white">
+              <div className="font-bold mb-0.5 uppercase text-[10px] sm:text-[11px] flex items-center gap-1">
+                <span className="w-2 h-2 bg-black inline-block shrink-0" />
+                <span>Hand Cash</span>
               </div>
-              <div className="text-sm font-bold">
+              <div className="text-sm font-bold text-black">
                 {formatCurrency(cashSales)}
               </div>
-              <div className="text-[10px] text-white/70">
+              <div className="text-[10px] text-black/70">
                 {totalRevenue > 0 ? `${Math.round((cashSales / totalRevenue) * 100)}%` : '0%'}
               </div>
             </div>
 
-            <div className="p-2.5 border border-white bg-black">
-              <div className="font-bold mb-0.5 uppercase text-[11px]">
-                GPay / UPI
+            <div className="p-2.5 border border-black bg-white">
+              <div className="font-bold mb-0.5 uppercase text-[10px] sm:text-[11px] flex items-center gap-1">
+                <span className="w-2 h-2 bg-red-600 inline-block shrink-0" />
+                <span>GPay / UPI</span>
               </div>
-              <div className="text-sm font-bold">
+              <div className="text-sm font-bold text-black">
                 {formatCurrency(upiSales)}
               </div>
-              <div className="text-[10px] text-white/70">
+              <div className="text-[10px] text-black/70">
                 {totalRevenue > 0 ? `${Math.round((upiSales / totalRevenue) * 100)}%` : '0%'}
               </div>
             </div>
 
-            <div className="p-2.5 border border-white bg-black">
-              <div className="font-bold mb-0.5 uppercase text-[11px]">
-                Card
+            <div className="p-2.5 border border-black bg-white">
+              <div className="font-bold mb-0.5 uppercase text-[10px] sm:text-[11px] flex items-center gap-1">
+                <span className="w-2 h-2 bg-black/30 border border-black inline-block shrink-0" />
+                <span>Card</span>
               </div>
-              <div className="text-sm font-bold">
+              <div className="text-sm font-bold text-black">
                 {formatCurrency(cardSales)}
               </div>
-              <div className="text-[10px] text-white/70">
+              <div className="text-[10px] text-black/70">
                 {totalRevenue > 0 ? `${Math.round((cardSales / totalRevenue) * 100)}%` : '0%'}
               </div>
             </div>
@@ -500,34 +503,34 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Hourly Rush Chart (Evening Peak) */}
-        <div className="p-4 sm:p-5 bg-black border border-white space-y-3">
-          <div className="flex items-center justify-between border-b border-white/20 pb-2">
-            <h3 className="text-sm font-bold uppercase tracking-wider">
-              Evening Rush Hours (Counter Traffic)
+        <div className="p-4 sm:p-5 bg-white border border-black space-y-3">
+          <div className="flex items-center justify-between border-b border-black/20 pb-2">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-black">
+              Evening Rush Hours
             </h3>
-            <span className="text-[11px] text-white/70">Orders by Hour</span>
+            <span className="text-[11px] text-black/70">Orders by Hour</span>
           </div>
 
-          <div className="h-36 flex items-end justify-between gap-2 pt-4">
+          <div className="h-36 flex items-end justify-between gap-1.5 sm:gap-2 pt-4 overflow-x-auto no-scrollbar">
             {displayHours.map((hr) => {
               const count = hourlyCount[hr] || 0;
               const heightPercent = maxHourlyBills > 0 ? (count / maxHourlyBills) * 100 : 0;
               const label = hr > 12 ? `${hr - 12} PM` : `${hr} AM`;
 
               return (
-                <div key={hr} className="flex-1 flex flex-col items-center h-full justify-end gap-1.5">
-                  <span className="text-[10px] font-bold">
+                <div key={hr} className="flex-1 min-w-[32px] flex flex-col items-center h-full justify-end gap-1.5">
+                  <span className="text-[10px] font-bold text-black">
                     {count > 0 ? count : ''}
                   </span>
-                  <div className="w-full max-w-[28px] border border-white relative flex items-end overflow-hidden h-24 bg-black">
+                  <div className="w-full max-w-[28px] border border-black relative flex items-end overflow-hidden h-24 bg-white">
                     <div
                       style={{ height: `${Math.max(count > 0 ? 12 : 4, heightPercent)}%` }}
                       className={`w-full transition-all ${
-                        count > 0 ? 'bg-white' : 'bg-transparent'
+                        count > 0 ? 'bg-red-600' : 'bg-transparent'
                       }`}
                     />
                   </div>
-                  <span className="text-[9px] text-white/70 whitespace-nowrap">
+                  <span className="text-[9px] text-black/70 whitespace-nowrap">
                     {label}
                   </span>
                 </div>
@@ -538,37 +541,37 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       </div>
 
       {/* Top Selling Items Table */}
-      <div className="p-4 sm:p-5 bg-black border border-white space-y-3">
-        <h3 className="text-sm font-bold uppercase tracking-wider">
+      <div className="p-4 sm:p-5 bg-white border border-black space-y-3">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-black">
           Top Selling BBQ Items ({timeRange.toUpperCase()})
         </h3>
 
         {topItems.length === 0 ? (
-          <p className="text-xs text-white/60 py-4 text-center">
+          <p className="text-xs text-black/60 py-4 text-center">
             No completed sales in this period yet.
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border border-white/20">
+            <table className="w-full text-left text-xs border border-black/30">
               <thead>
-                <tr className="border-b border-white text-white font-bold text-[11px] bg-black">
+                <tr className="border-b-2 border-black text-black font-bold text-[11px] bg-white">
                   <th className="py-2.5 px-3">RANK</th>
                   <th className="py-2.5 px-3">ITEM NAME</th>
-                  <th className="py-2.5 px-3 text-right">QUANTITY SOLD</th>
+                  <th className="py-2.5 px-3 text-right">QTY SOLD</th>
                   <th className="py-2.5 px-3 text-right">REVENUE</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/20">
+              <tbody className="divide-y divide-black/15">
                 {topItems.map((item, idx) => (
-                  <tr key={item.name} className="hover:bg-white/5 transition-colors">
-                    <td className="py-2.5 px-3 font-bold text-white/70">
+                  <tr key={item.name} className="hover:bg-black/5 transition-colors">
+                    <td className="py-2.5 px-3 font-bold text-black/70">
                       #{idx + 1}
                     </td>
-                    <td className="py-2.5 px-3 font-bold">{item.name}</td>
-                    <td className="py-2.5 px-3 text-right font-bold text-white/90">
+                    <td className="py-2.5 px-3 font-bold text-black">{item.name}</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-black/80">
                       {item.quantity} Orders
                     </td>
-                    <td className="py-2.5 px-3 text-right font-bold tabular-nums">
+                    <td className="py-2.5 px-3 text-right font-bold tabular-nums text-black">
                       {formatCurrency(item.revenue)}
                     </td>
                   </tr>
@@ -581,32 +584,32 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
       {/* Past Drawer Closings History */}
       {closings.length > 0 && (
-        <div className="p-4 sm:p-5 bg-black border border-white space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-wider">
+        <div className="p-4 sm:p-5 bg-white border border-black space-y-3">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-black">
             Past Drawer Closings (Cash Reconciliations)
           </h3>
           <div className="space-y-2">
             {closings.slice(0, 5).map((cl) => (
               <div
                 key={cl.id}
-                className="p-3 border border-white bg-black flex items-center justify-between gap-3 text-xs"
+                className="p-3 border border-black bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
               >
                 <div>
-                  <div className="font-bold">{cl.dateStr}</div>
-                  <div className="text-[11px] text-white/70">
+                  <div className="font-bold text-black">{cl.dateStr}</div>
+                  <div className="text-[11px] text-black/70">
                     Expected: {formatCurrency(cl.expectedCash)} • Actual: {formatCurrency(cl.actualCash)}
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <span className="font-bold px-2 py-0.5 border border-white text-[11px] inline-block">
+                <div className="sm:text-right">
+                  <span className="font-bold px-2 py-0.5 border border-black text-[11px] inline-block text-black">
                     {cl.difference === 0
                       ? 'BALANCED (₹0)'
                       : cl.difference > 0
                       ? `+${formatCurrency(cl.difference)} EXCESS`
                       : `-${formatCurrency(Math.abs(cl.difference))} SHORTAGE`}
                   </span>
-                  <div className="text-[10px] text-white/60 mt-0.5">
+                  <div className="text-[10px] text-black/60 mt-0.5">
                     {formatDateTime(cl.timestamp)}
                   </div>
                 </div>
@@ -618,16 +621,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
       {/* Cash Drawer Closing Modal */}
       {showDrawerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-          <div className="w-full max-w-lg bg-black border-2 border-white flex flex-col max-h-[92vh] overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-white flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
+          <div className="w-full max-w-lg bg-white text-black border-2 border-black flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
+            <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-white">
               <div>
-                <h3 className="text-base font-bold uppercase">End-of-Day Cash Drawer Closing</h3>
-                <span className="text-xs text-white/70">Reconcile physical cash with system bills</span>
+                <h3 className="text-base font-bold uppercase text-black">End-of-Day Cash Drawer Closing</h3>
+                <span className="text-xs text-black/70">Reconcile physical cash with system bills</span>
               </div>
               <button
                 onClick={() => setShowDrawerModal(false)}
-                className="text-white hover:opacity-70 text-base"
+                className="w-8 h-8 border border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors"
               >
                 ✕
               </button>
@@ -635,22 +638,22 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
             <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
               {/* Expected Cash Summary */}
-              <div className="grid grid-cols-2 gap-3 p-3 border border-white text-xs">
+              <div className="grid grid-cols-2 gap-3 p-3 border border-black text-xs bg-white">
                 <div>
-                  <span className="text-white/70 block uppercase">Today's Cash Sales:</span>
-                  <span className="text-base font-bold">
+                  <span className="text-black/70 block uppercase">Today's Cash Sales:</span>
+                  <span className="text-base font-bold text-black">
                     {formatCurrency(todayCashSales)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-white/70 block uppercase">Opening Cash Float:</span>
+                  <span className="text-black/70 block uppercase">Opening Cash Float:</span>
                   <div className="flex items-center gap-1 mt-0.5">
                     <span className="text-xs">₹</span>
                     <input
                       type="number"
                       value={openingFloat}
                       onChange={(e) => setOpeningFloat(Number(e.target.value) || 0)}
-                      className="w-24 bg-black border border-white px-2 py-0.5 text-xs font-bold text-white"
+                      className="w-24 bg-white border border-black px-2 py-0.5 text-xs font-bold text-black"
                     />
                   </div>
                 </div>
@@ -658,7 +661,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               {/* Denomination Counter */}
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider block mb-2">
+                <label className="text-xs font-bold uppercase tracking-wider block mb-2 text-black">
                   Count Physical Cash Notes in Drawer:
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -667,13 +670,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     return (
                       <div
                         key={den}
-                        className="p-2.5 border border-white flex items-center justify-between"
+                        className="p-2.5 border border-black flex items-center justify-between bg-white"
                       >
                         <div>
-                          <div className="text-xs font-bold">
+                          <div className="text-xs font-bold text-black">
                             ₹{den}
                           </div>
-                          <div className="text-[10px] text-white/70">
+                          <div className="text-[10px] text-black/70">
                             = {formatCurrency(den * count)}
                           </div>
                         </div>
@@ -689,7 +692,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                             })
                           }
                           placeholder="0"
-                          className="w-14 bg-black border border-white px-2 py-1 text-center font-bold text-white text-xs"
+                          className="w-14 bg-white border border-black px-2 py-1 text-center font-bold text-black text-xs"
                         />
                       </div>
                     );
@@ -697,8 +700,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 </div>
 
                 {/* Coins / Small Change */}
-                <div className="mt-2.5 p-2.5 border border-white flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase">
+                <div className="mt-2.5 p-2.5 border border-black flex items-center justify-between bg-white">
+                  <span className="text-xs font-bold uppercase text-black">
                     Loose Coins &amp; Change Total:
                   </span>
                   <div className="flex items-center gap-1">
@@ -709,29 +712,29 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       value={coinsAmount === 0 ? '' : coinsAmount}
                       onChange={(e) => setCoinsAmount(Math.max(0, Number(e.target.value) || 0))}
                       placeholder="0"
-                      className="w-24 bg-black border border-white px-2 py-1 text-right font-bold text-white text-xs"
+                      className="w-24 bg-white border border-black px-2 py-1 text-right font-bold text-black text-xs"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Reconciliation Status Card */}
-              <div className="p-4 border border-white">
+              <div className="p-4 border-2 border-black bg-white">
                 <div className="flex items-center justify-between text-xs">
                   <span>Total Cash Counted in Drawer:</span>
-                  <span className="font-bold text-sm">
+                  <span className="font-bold text-sm text-black">
                     {formatCurrency(totalDenominationCash)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs mt-1">
                   <span>System Expected Cash:</span>
-                  <span className="text-white/80">
+                  <span className="text-black/80">
                     {formatCurrency(expectedDrawerCash)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/40 font-bold">
+                <div className="flex items-center justify-between pt-2 mt-2 border-t border-black/30 font-bold">
                   <span>Drawer Variance:</span>
-                  <span className="text-base font-bold">
+                  <span className={`text-base font-bold ${drawerVariance < 0 ? 'text-red-600' : 'text-black'}`}>
                     {drawerVariance === 0
                       ? '₹0 [EXACT MATCH]'
                       : drawerVariance > 0
@@ -742,31 +745,31 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </div>
 
               <div>
-                <label className="text-[11px] font-bold uppercase block mb-1">
+                <label className="text-[11px] font-bold uppercase block mb-1 text-black">
                   Closing Notes (Optional):
                 </label>
                 <textarea
                   value={closingNotes}
                   onChange={(e) => setClosingNotes(e.target.value)}
                   placeholder="e.g. Returned ₹100 change to supplier, verified with night shift."
-                  className="w-full bg-black border border-white p-2.5 text-xs text-white"
+                  className="w-full bg-white border border-black p-2.5 text-xs text-black"
                   rows={2}
                 />
               </div>
             </div>
 
-            <div className="p-4 border-t border-white flex items-center gap-2">
+            <div className="p-4 border-t-2 border-black flex items-center gap-2 bg-white pb-safe">
               <button
                 type="button"
                 onClick={() => setShowDrawerModal(false)}
-                className="flex-1 py-2.5 bg-black hover:bg-white hover:text-black border border-white text-xs font-bold transition-colors"
+                className="flex-1 py-2.5 bg-white hover:bg-black/5 border border-black text-black text-xs font-bold transition-colors min-h-[44px]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveClosing}
-                className="flex-1 py-2.5 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold transition-colors"
+                className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold transition-colors min-h-[44px]"
               >
                 Save &amp; Share Closing
               </button>
@@ -777,47 +780,47 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
       {/* Share Today's Sales Modal */}
       {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-          <div className="w-full max-w-md bg-black border-2 border-white flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
+          <div className="w-full max-w-md bg-white text-black border-2 border-black flex flex-col overflow-hidden max-h-[92dvh] shadow-2xl">
             {/* Modal Header */}
-            <div className="px-5 py-3.5 border-b border-white flex items-center justify-between">
+            <div className="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-white">
               <div>
-                <h3 className="text-base font-bold uppercase">Share Day Closing Report</h3>
-                <span className="text-[11px] text-white/70">Total Sales, Hand Cash &amp; GPay Breakdown</span>
+                <h3 className="text-base font-bold uppercase text-black">Share Day Closing Report</h3>
+                <span className="text-[11px] text-black/70">Total Sales, Hand Cash &amp; GPay Breakdown</span>
               </div>
               <button
                 onClick={() => setShowShareModal(false)}
-                className="text-white hover:opacity-70 p-1"
+                className="w-8 h-8 border border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors"
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Content */}
-            <div className="p-4 sm:p-5 space-y-4 max-h-[82vh] overflow-y-auto">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
               {/* Report Summary Card Preview */}
-              <div className="p-4 border border-white space-y-3">
+              <div className="p-4 border border-black space-y-3 bg-white">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs uppercase tracking-wider">
+                  <span className="font-bold text-xs uppercase tracking-wider text-black">
                     {settings.businessName}
                   </span>
-                  <span className="text-[11px] font-bold">
+                  <span className="text-[11px] font-bold text-black">
                     {todayStr}
                   </span>
                 </div>
 
-                <div className="p-3 border border-white flex items-center justify-between">
+                <div className="p-3 border border-black flex items-center justify-between bg-white">
                   <div>
-                    <span className="text-[10px] text-white/70 uppercase font-bold block">
+                    <span className="text-[10px] text-black/70 uppercase font-bold block">
                       Total Sales
                     </span>
-                    <span className="text-2xl font-bold">
+                    <span className="text-2xl font-bold text-black">
                       {formatCurrency(todayTotalSales)}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-white/70 block font-bold uppercase">Orders</span>
-                    <span className="text-sm font-bold">
+                    <span className="text-[10px] text-black/70 block font-bold uppercase">Orders</span>
+                    <span className="text-sm font-bold text-black">
                       {todayCompletedBills.length} Completed
                     </span>
                   </div>
@@ -825,38 +828,38 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
                 {/* Hand Cash & GPay Side by Side */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 border border-white">
-                    <span className="text-[10px] font-bold block uppercase">
+                  <div className="p-2.5 border border-black bg-white">
+                    <span className="text-[10px] font-bold block uppercase text-black/70">
                       HAND CASH
                     </span>
-                    <span className="text-base font-bold">
+                    <span className="text-base font-bold text-black">
                       {formatCurrency(todayCashSales)}
                     </span>
                   </div>
-                  <div className="p-2.5 border border-white">
-                    <span className="text-[10px] font-bold block uppercase">
+                  <div className="p-2.5 border border-black bg-white">
+                    <span className="text-[10px] font-bold block uppercase text-black/70">
                       GPAY / UPI
                     </span>
-                    <span className="text-base font-bold">
+                    <span className="text-base font-bold text-black">
                       {formatCurrency(todayUpiSales)}
                     </span>
                   </div>
                 </div>
 
                 {/* Dine-in vs Parcel Orders Breakdown */}
-                <div className="p-2.5 border border-white flex items-center justify-between text-xs">
+                <div className="p-2.5 border border-black flex items-center justify-between text-xs bg-white flex-wrap gap-1">
                   <span>DINE-IN: {todayDineInBills.length} ({formatCurrency(todayDineInSales)})</span>
                   <span>PARCEL: {todayParcelBills.length} ({formatCurrency(todayParcelSales)})</span>
                 </div>
 
                 {/* Cash Drawer Reconciliation Summary */}
-                <div className="text-[11px] text-white/70 space-y-0.5 border-t border-white/40 pt-2">
+                <div className="text-[11px] text-black/70 space-y-0.5 border-t border-black/30 pt-2">
                   <div className="flex justify-between">
                     <span>Opening Float: {formatCurrency(openingFloat)}</span>
                     <span>Expected Drawer: {formatCurrency(expectedDrawerCash)}</span>
                   </div>
                   {totalDenominationCash > 0 && (
-                    <div className="flex justify-between font-bold text-white">
+                    <div className="flex justify-between font-bold text-black">
                       <span>Counted Drawer Cash: {formatCurrency(totalDenominationCash)}</span>
                       <span>
                         {drawerVariance === 0
@@ -872,11 +875,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               {/* Optional Recipient Phone Number */}
               <div>
-                <label className="text-[11px] font-bold uppercase block mb-1">
+                <label className="text-[11px] font-bold uppercase block mb-1 text-black">
                   Owner WhatsApp Number (Optional):
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 text-xs font-bold">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/70 text-xs font-bold">
                     +91
                   </span>
                   <input
@@ -884,19 +887,19 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     value={ownerPhone}
                     onChange={(e) => setOwnerPhone(e.target.value)}
                     placeholder="9876543210 (Leave blank for contacts picker)"
-                    className="w-full bg-black border border-white pl-11 pr-3 py-2 text-xs text-white placeholder-white/40 focus:outline-none"
+                    className="w-full bg-white border border-black pl-11 pr-3 py-2 text-xs text-black placeholder-black/40 focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="space-y-2 pt-1">
-                {/* 1. Share as Picture to WhatsApp */}
+                {/* 1. Share as Picture to WhatsApp (BOLD RED) */}
                 <button
                   type="button"
                   onClick={handleShareWhatsAppImage}
                   disabled={isSharingImage}
-                  className="w-full py-3 bg-white text-black hover:bg-white/90 border border-white text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                  className="w-full py-3 bg-red-600 text-white hover:bg-red-700 border border-red-600 text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-60 min-h-[44px]"
                 >
                   <ImageIcon className="w-4 h-4" />
                   <span>{isSharingImage ? 'Generating Picture...' : 'Share Sales Report as Picture in WhatsApp'}</span>
@@ -906,7 +909,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleShareWhatsAppText}
-                  className="w-full py-2.5 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-2.5 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold flex items-center justify-center gap-2 transition-colors min-h-[44px]"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Send Sales Summary as WhatsApp Message</span>
@@ -917,7 +920,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleDownloadClosingPicture}
-                    className="py-2 px-3 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    className="py-2 px-3 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-colors min-h-[40px]"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Download Picture</span>
@@ -926,7 +929,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleCopySummary}
-                    className="py-2 px-3 bg-black hover:bg-white hover:text-black border border-white text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    className="py-2 px-3 bg-white hover:bg-black hover:text-white border border-black text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-colors min-h-[40px]"
                   >
                     {copiedText ? (
                       <>
@@ -945,11 +948,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-3 border-t border-white text-center">
+            <div className="p-3 border-t border-black text-center bg-white">
               <button
                 type="button"
                 onClick={() => setShowShareModal(false)}
-                className="text-xs text-white/70 hover:text-white uppercase font-bold"
+                className="text-xs text-black/70 hover:text-black uppercase font-bold"
               >
                 Close Window
               </button>

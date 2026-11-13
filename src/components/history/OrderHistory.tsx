@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   Receipt,
   Ban,
-  CheckCircle,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/format';
 import { sound } from '../../utils/sound';
@@ -84,7 +83,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 pb-28 space-y-5 bg-white text-black font-serif select-none">
+    <div className="max-w-6xl mx-auto p-3 sm:p-6 pb-28 space-y-4 sm:space-y-5 bg-white text-black font-serif select-none">
       {/* Top Bar matching screenshot layout */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Left: Search Bar */}
@@ -200,16 +199,32 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                       </div>
                     </div>
 
-                    {/* Status Badge on Top Right */}
-                    <span
-                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md border tracking-wide uppercase ${
-                        isCancelled
-                          ? 'bg-red-50 text-red-600 border-red-200'
-                          : 'bg-green-50 text-green-700 border-green-200'
-                      }`}
-                    >
-                      {isCancelled ? 'Cancelled' : 'Completed'}
-                    </span>
+                    {/* Status Badge & Void Trigger on Top Right */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md border tracking-wide uppercase ${
+                          isCancelled
+                            ? 'bg-red-50 text-red-600 border-red-200'
+                            : 'bg-green-50 text-green-700 border-green-200'
+                        }`}
+                      >
+                        {isCancelled ? 'Cancelled' : 'Completed'}
+                      </span>
+                      {!isCancelled && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCancellingBill(bill);
+                            setCancelReason('Customer cancelled order');
+                            setCustomReason('');
+                          }}
+                          title="Void / Cancel Bill"
+                          className="p-1 text-red-600 hover:bg-red-50 border border-red-200 rounded-md transition-colors"
+                        >
+                          <Ban className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Second Row: Date & Time */}
@@ -223,9 +238,9 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
 
                   {/* 3-Column Table Header */}
                   <div className="grid grid-cols-12 text-xs text-black/50 font-semibold pb-1.5 px-0.5">
-                    <span className="col-span-8">Items</span>
+                    <span className="col-span-7">Items</span>
                     <span className="col-span-2 text-center">Qty</span>
-                    <span className="col-span-2 text-right">Price</span>
+                    <span className="col-span-3 text-right">Price</span>
                   </div>
 
                   {/* Itemized Rows */}
@@ -235,7 +250,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                         key={idx}
                         className="grid grid-cols-12 text-xs text-black items-center py-0.5"
                       >
-                        <span className="col-span-8 font-medium truncate pr-1">
+                        <span className="col-span-7 font-medium truncate pr-1">
                           {it.name}
                           {it.variantName ? ` (${it.variantName})` : ''}
                           {it.flavourName && it.flavourName !== 'Plain / Original' ? (
@@ -248,7 +263,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                         <span className="col-span-2 text-center text-black/70 tabular-nums font-medium">
                           {it.quantity}
                         </span>
-                        <span className="col-span-2 text-right font-bold tabular-nums">
+                        <span className="col-span-3 text-right font-bold tabular-nums">
                           {formatCurrency(it.unitPrice * it.quantity)}
                         </span>
                       </div>

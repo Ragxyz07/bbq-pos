@@ -293,7 +293,7 @@ export default function App() {
         {activeTab === 'billing' && (
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Left Column: Menu Items & Categories */}
-            <div className="flex-1 flex flex-col overflow-y-auto p-3 sm:p-5 lg:p-6 pb-28 lg:pb-8">
+            <div className="flex-1 flex flex-col overflow-y-auto p-3 sm:p-5 lg:p-6 pb-36 lg:pb-8">
               <div className="max-w-4xl w-full mx-auto space-y-3">
                 {/* Search & Counter Search Header */}
                 <div className="flex items-center gap-2">
@@ -537,8 +537,8 @@ export default function App() {
 
       {/* 10. Undo Toast for Deleted Cart Item */}
       {undoToast && (
-        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white border-2 border-black text-black px-4 py-2.5 shadow-2xl flex items-center gap-3">
-          <span className="text-xs font-bold uppercase">{undoToast.message}</span>
+        <div className="fixed bottom-32 md:bottom-6 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 bg-white border-2 border-black text-black px-3.5 py-2.5 shadow-2xl flex items-center justify-between sm:justify-start gap-3 max-w-md mx-auto">
+          <span className="text-xs font-bold uppercase truncate">{undoToast.message}</span>
           <button
             type="button"
             onClick={handleUndoRemove}

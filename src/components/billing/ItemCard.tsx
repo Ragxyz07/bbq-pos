@@ -37,14 +37,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       }`}
     >
       {/* Top row: Badges and current cart indicator */}
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex items-start justify-between gap-2 mb-1.5 min-w-0">
+        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
           {item.badge && (
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border border-black text-black bg-white">
               {item.badge}
             </span>
           )}
-          {item.isCombo && (
+          {item.isCombo && item.categoryId !== 'cat-meal-box' && (
             <span className="text-[10px] font-bold px-2 py-0.5 border border-black text-black bg-white">
               Combo Box
             </span>
@@ -52,15 +52,15 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         </div>
 
         {currentCartQty > 0 && (
-          <span className="text-xs font-bold bg-red-600 text-white px-2 py-0.5 border border-red-600">
+          <span className="text-xs font-bold bg-red-600 text-white px-2 py-0.5 border border-red-600 shrink-0">
             {currentCartQty} in bill
           </span>
         )}
       </div>
 
       {/* Item Title and Description */}
-      <div className="flex-1 my-1">
-        <h4 className="text-sm sm:text-base font-bold text-black tracking-wide group-hover:underline line-clamp-1">
+      <div className="flex-1 my-1 min-w-0">
+        <h4 className="text-sm sm:text-base font-bold text-black tracking-wide group-hover:underline break-words">
           {item.name}
         </h4>
         {item.description && (

@@ -16,7 +16,7 @@ export const CartBar: React.FC<CartBarProps> = ({
   if (itemCount === 0) return null;
 
   return (
-    <div className="fixed bottom-14 left-0 right-0 z-30 p-2 sm:p-3 pointer-events-none lg:hidden select-none">
+    <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px))] md:bottom-3 left-0 right-0 z-30 p-2 sm:p-3 pointer-events-none lg:hidden select-none">
       <div className="max-w-md mx-auto pointer-events-auto">
         <button
           type="button"
