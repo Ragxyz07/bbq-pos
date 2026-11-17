@@ -5,12 +5,9 @@ import {
   X,
   Banknote,
   QrCode,
-  CreditCard,
   Split,
   CheckCircle,
   Copy,
-  ExternalLink,
-  Flame,
 } from 'lucide-react';
 import { formatCurrency, generateUpiString } from '../../utils/format';
 import { sound } from '../../utils/sound';
@@ -56,7 +53,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   initialMethod,
   soundEnabled = true,
 }) => {
-  const [method, setMethod] = useState<PaymentMethod>(initialMethod || settings.defaultPaymentMethod || 'cash');
+  const resolveSafeMethod = (pm?: PaymentMethod): PaymentMethod => {
+    if (pm === 'cash' || pm === 'upi' || pm === 'split') return pm;
+    return 'cash';
+  };
+
+  const [method, setMethod] = useState<PaymentMethod>(
+    resolveSafeMethod(initialMethod || settings.defaultPaymentMethod)
+  );
   const [cashReceived, setCashReceived] = useState<number>(totalAmount);
   const [split, setSplit] = useState<PaymentSplit>({
     cash: 0,
@@ -71,7 +75,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setMethod(initialMethod || settings.defaultPaymentMethod || 'cash');
+      setMethod(resolveSafeMethod(initialMethod || settings.defaultPaymentMethod));
       setCashReceived(totalAmount);
       setSplit({
         cash: 0,
@@ -82,7 +86,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       });
       setCopiedUpi(false);
     }
-  }, [isOpen, totalAmount]);
+  }, [isOpen, totalAmount, initialMethod, settings.defaultPaymentMethod]);
 
   // Generate UPI QR code whenever on UPI tab or Split has UPI
   useEffect(() => {
@@ -115,8 +119,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const cashChange = Math.max(0, cashReceived - totalAmount);
   const isCashSufficient = cashReceived >= totalAmount;
 
-  // Split calculations
-  const splitTotal = split.cash + split.upi + split.card;
+  // Split calculations (Cash + UPI)
+  const splitTotal = split.cash + split.upi;
   const splitRemaining = totalAmount - splitTotal;
   const isSplitValid = splitTotal === totalAmount;
 
@@ -138,15 +142,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         upi: totalAmount,
         card: 0,
       };
-    } else if (method === 'card') {
-      finalSplit = {
-        cash: 0,
-        upi: 0,
-        card: totalAmount,
-      };
     } else {
       finalSplit = {
-        ...split,
+        cash: split.cash,
+        upi: split.upi,
+        card: 0,
         cashChange: split.cashReceived ? Math.max(0, split.cashReceived - split.cash) : 0,
       };
     }
@@ -220,11 +220,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {/* Payment Method Selector */}
         <div className="p-2.5 bg-white border-b border-black/30 shrink-0">
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-3 gap-1.5">
             {[
               { id: 'cash' as PaymentMethod, label: 'Cash', icon: Banknote },
               { id: 'upi' as PaymentMethod, label: 'UPI QR', icon: QrCode },
-              { id: 'card' as PaymentMethod, label: 'Card', icon: CreditCard },
               { id: 'split' as PaymentMethod, label: 'Split', icon: Split },
             ].map((pm) => {
               const Icon = pm.icon;
@@ -358,23 +357,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
           )}
 
-          {/* CARD MODE */}
-          {method === 'card' && (
-            <div className="py-6 text-center space-y-4">
-              <div className="w-16 h-16 mx-auto border-2 border-black bg-white flex items-center justify-center text-black">
-                <CreditCard className="w-8 h-8" />
-              </div>
-              <div>
-                <h4 className="text-base font-bold text-black">POS Card Machine</h4>
-                <p className="text-xs text-black/80 mt-1 max-w-xs mx-auto">
-                  Swipe or tap debit/credit card for{' '}
-                  <strong className="text-black font-bold">{formatCurrency(totalAmount)}</strong> on your card terminal.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* SPLIT MODE */}
+          {/* SPLIT MODE (Cash + UPI) */}
           {method === 'split' && (
             <div className="space-y-3">
               <div className="p-3 bg-white border border-black space-y-3">
@@ -411,26 +394,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       value={split.upi || ''}
                       onChange={(e) =>
                         setSplit({ ...split, upi: Math.max(0, Number(e.target.value) || 0) })
-                      }
-                      placeholder="0"
-                      className="w-28 bg-white border border-black px-2.5 py-1 text-right font-bold text-black text-xs"
-                    />
-                  </div>
-                </div>
-
-                {/* Card portion */}
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-black flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4" />
-                    Card:
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-black">₹</span>
-                    <input
-                      type="number"
-                      value={split.card || ''}
-                      onChange={(e) =>
-                        setSplit({ ...split, card: Math.max(0, Number(e.target.value) || 0) })
                       }
                       placeholder="0"
                       className="w-28 bg-white border border-black px-2.5 py-1 text-right font-bold text-black text-xs"

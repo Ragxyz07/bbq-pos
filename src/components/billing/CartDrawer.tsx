@@ -14,7 +14,6 @@ import {
   ShoppingBag,
   Banknote,
   QrCode,
-  CreditCard,
   Split,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/format';
@@ -480,15 +479,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <span className="text-[10px] uppercase font-bold text-black tracking-wider block">
               Method of Payment:
             </span>
-            <div className="grid grid-cols-4 gap-1.5 p-1 bg-white border border-black">
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-white border border-black">
               {[
                 { id: 'cash' as PaymentMethod, label: 'Cash', icon: Banknote },
                 { id: 'upi' as PaymentMethod, label: 'UPI QR', icon: QrCode },
-                { id: 'card' as PaymentMethod, label: 'Card', icon: CreditCard },
                 { id: 'split' as PaymentMethod, label: 'Split', icon: Split },
               ].map((pm) => {
                 const Icon = pm.icon;
-                const isSelected = paymentMethod === pm.id;
+                const activeMethod = paymentMethod === 'card' ? 'cash' : paymentMethod;
+                const isSelected = activeMethod === pm.id;
                 return (
                   <button
                     key={pm.id}
@@ -520,17 +519,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         <div className="p-2.5 sm:p-3 bg-white border-t border-black shrink-0">
           <button
             type="button"
-            onClick={() => onProceedToPayment(paymentMethod)}
+            onClick={() => onProceedToPayment(paymentMethod === 'card' ? 'cash' : paymentMethod)}
             className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white border border-red-600 font-bold text-sm flex items-center justify-between px-4 transition-colors min-h-[44px] shadow-sm"
           >
             <span>
-              {paymentMethod === 'cash'
-                ? 'Pay with Cash'
-                : paymentMethod === 'upi'
+              {paymentMethod === 'upi'
                 ? 'Scan UPI QR'
-                : paymentMethod === 'card'
-                ? 'Pay via Card'
-                : 'Split Payment'}
+                : paymentMethod === 'split'
+                ? 'Split Payment'
+                : 'Pay with Cash'}
             </span>
             <span className="text-lg font-bold tabular-nums">
               {formatCurrency(finalTotal)}

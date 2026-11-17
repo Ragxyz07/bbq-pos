@@ -108,7 +108,11 @@ export function generateWhatsAppMessage(bill: Bill, settings: AppSettings): stri
   } else if (bill.paymentMethod === 'split') {
     const s = bill.paymentSplit;
     lines.push(`🔀 *Payment Method:* SPLIT`);
-    lines.push(`   ↳ Cash: ₹${s?.cash || 0} | UPI: ₹${s?.upi || 0} | Card: ₹${s?.card || 0}`);
+    lines.push(
+      `   ↳ Cash: ₹${s?.cash || 0} | UPI: ₹${s?.upi || 0}${
+        (s?.card || 0) > 0 ? ` | Card: ₹${s.card}` : ''
+      }`
+    );
   } else {
     lines.push(`💳 *Payment Method:* ${String(bill.paymentMethod || '').toUpperCase()}`);
   }

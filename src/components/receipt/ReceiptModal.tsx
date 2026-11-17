@@ -530,7 +530,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               )}
               {bill.paymentMethod === 'split' && bill.paymentSplit && (
                 <div style={{ fontSize: '9px' }}>
-                  Cash: {formatCurrency(bill.paymentSplit.cash)} | UPI: {formatCurrency(bill.paymentSplit.upi)} | Card: {formatCurrency(bill.paymentSplit.card)}
+                  Cash: {formatCurrency(bill.paymentSplit.cash)} | UPI: {formatCurrency(bill.paymentSplit.upi)}
+                  {bill.paymentSplit.card > 0 ? ` | Card: ${formatCurrency(bill.paymentSplit.card)}` : ''}
                 </div>
               )}
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Bill, AppSettings } from '../../types';
 import {
   Search,
@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Receipt,
   Ban,
+  Calendar,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/format';
 import { sound } from '../../utils/sound';
@@ -20,6 +21,19 @@ interface OrderHistoryProps {
   onNewOrder?: () => void;
 }
 
+const toLocalDateKey = (timestamp: number): string => {
+  const d = new Date(timestamp);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const parseDateKey = (dateKey: string): Date => {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+};
+
 export const OrderHistory: React.FC<OrderHistoryProps> = ({
   bills,
   onReprintBill,
@@ -28,6 +42,12 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
   soundEnabled = true,
   onNewOrder,
 }) => {
+  const todayKey = toLocalDateKey(Date.now());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayKey = toLocalDateKey(yesterdayDate.getTime());
+
+  const [selectedDateKey, setSelectedDateKey] = useState<string>(todayKey);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterDropdown, setFilterDropdown] = useState<string>('all');
 
@@ -55,7 +75,53 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
     });
   };
 
-  const filteredBills = bills.filter((bill) => {
+  const getDayCategoryName = (dateKey: string) => {
+    if (dateKey === todayKey) return 'Today';
+    if (dateKey === yesterdayKey) return 'Yesterday';
+    return parseDateKey(dateKey).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const getFullHeaderDate = (dateKey: string) => {
+    return parseDateKey(dateKey).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  // Group counts per local calendar day and build ordered day categories (Today, Yesterday, plus past dates)
+  const { dayCounts, orderedDayKeys } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    bills.forEach((b) => {
+      const k = toLocalDateKey(b.timestamp);
+      counts[k] = (counts[k] || 0) + 1;
+    });
+
+    const keySet = new Set<string>([todayKey, yesterdayKey, selectedDateKey, ...Object.keys(counts)]);
+    const sorted = Array.from(keySet).sort((a, b) => b.localeCompare(a));
+    return { dayCounts: counts, orderedDayKeys: sorted };
+  }, [bills, todayKey, yesterdayKey, selectedDateKey]);
+
+  // Only show orders belonging to the selected day, plus optional search/type filters
+  const dayBills = useMemo(
+    () => bills.filter((bill) => toLocalDateKey(bill.timestamp) === selectedDateKey),
+    [bills, selectedDateKey]
+  );
+
+  const dayCompletedTotal = useMemo(
+    () =>
+      dayBills
+        .filter((b) => b.status === 'completed')
+        .reduce((sum, b) => sum + b.totalAmount, 0),
+    [dayBills]
+  );
+
+  const filteredBills = dayBills.filter((bill) => {
     if (filterDropdown === 'dine-in' && bill.orderType !== 'dine-in') return false;
     if (filterDropdown === 'parcel' && bill.orderType !== 'parcel') return false;
     if (filterDropdown === 'completed' && bill.status !== 'completed') return false;
@@ -138,17 +204,90 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
         </div>
       </div>
 
+      {/* Day Category Selector: Today, Yesterday, and Date chips + Date Picker */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-black/20">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          {orderedDayKeys.map((dateKey) => {
+            const isActive = selectedDateKey === dateKey;
+            const count = dayCounts[dateKey] || 0;
+            return (
+              <button
+                key={dateKey}
+                type="button"
+                onClick={() => {
+                  sound.playTap(soundEnabled);
+                  setSelectedDateKey(dateKey);
+                }}
+                className={`px-3 py-1.5 text-xs font-bold border rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5 min-h-[38px] ${
+                  isActive
+                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                    : 'bg-white text-black border-black/60 hover:border-black hover:bg-black/5'
+                }`}
+              >
+                <span>{getDayCategoryName(dateKey)}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-sm border ${
+                    isActive
+                      ? 'bg-white text-red-600 border-white'
+                      : 'bg-white text-black border-black/40'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Direct Date Picker */}
+        <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+          <label className="flex items-center gap-1.5 border border-black/60 rounded-lg px-2.5 py-1.5 bg-white text-xs font-bold text-black min-h-[38px]">
+            <Calendar className="w-3.5 h-3.5 text-red-600 shrink-0" />
+            <input
+              type="date"
+              value={selectedDateKey}
+              max={todayKey}
+              onChange={(e) => {
+                if (e.target.value) {
+                  sound.playTap(soundEnabled);
+                  setSelectedDateKey(e.target.value);
+                }
+              }}
+              className="bg-transparent text-xs font-bold text-black focus:outline-none cursor-pointer"
+              aria-label="Filter orders by date"
+            />
+          </label>
+        </div>
+      </div>
+
+      {/* Selected Day Category Banner */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="px-2.5 py-0.5 bg-black text-white text-[11px] font-bold uppercase tracking-wider rounded-sm">
+            {getDayCategoryName(selectedDateKey)}
+          </span>
+          <span className="text-xs sm:text-sm font-bold text-black">
+            {getFullHeaderDate(selectedDateKey)}
+          </span>
+        </div>
+        <div className="text-xs font-bold text-black/80 tabular-nums shrink-0">
+          {filteredBills.length} {filteredBills.length === 1 ? 'Order' : 'Orders'} • {formatCurrency(dayCompletedTotal)}
+        </div>
+      </div>
+
       {/* Grid of Order Cards matching screenshot */}
       {filteredBills.length === 0 ? (
-        <div className="p-12 text-center bg-white border border-black/30 rounded-xl space-y-3">
+        <div className="p-10 sm:p-12 text-center bg-white border border-black/30 rounded-xl space-y-3">
           <Receipt className="w-12 h-12 text-black/40 mx-auto" />
-          <h4 className="text-base font-bold text-black">No Orders Found</h4>
+          <h4 className="text-base font-bold text-black">
+            No Orders for {getDayCategoryName(selectedDateKey)}
+          </h4>
           <p className="text-xs text-black/60 max-w-sm mx-auto">
             {searchQuery
-              ? `No bills matching "${searchQuery}". Clear your search to view all bills.`
-              : 'Punch a new bill at the counter or start an order.'}
+              ? `No bills matching "${searchQuery}" on ${getFullHeaderDate(selectedDateKey)}.`
+              : `No orders recorded on ${getFullHeaderDate(selectedDateKey)}. Select another day above or create a new order.`}
           </p>
-          {onNewOrder && (
+          {onNewOrder && selectedDateKey === todayKey && (
             <button
               type="button"
               onClick={onNewOrder}

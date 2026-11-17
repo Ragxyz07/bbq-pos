@@ -50,7 +50,9 @@ export default function App() {
     settings.defaultOrderType === 'parcel' ? 'parcel' : 'dine-in'
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    settings.defaultPaymentMethod || 'cash'
+    settings.defaultPaymentMethod && settings.defaultPaymentMethod !== 'card'
+      ? settings.defaultPaymentMethod
+      : 'cash'
   );
   const [tableOrToken, setTableOrToken] = useState<string>('');
   const [discountType, setDiscountType] = useState<'flat' | 'percent'>('flat');
