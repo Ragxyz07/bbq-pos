@@ -230,6 +230,69 @@ export default function App() {
     handleClearCart();
   };
 
+  // Checkout directly to Receipt/Print for Cash & UPI; open PaymentModal for Split
+  const handleProceedToCheckout = (chosen?: PaymentMethod) => {
+    if (cart.length === 0) return;
+
+    const methodToUse: PaymentMethod =
+      chosen && chosen !== 'card'
+        ? chosen
+        : paymentMethod === 'card'
+        ? 'cash'
+        : paymentMethod;
+
+    setPaymentMethod(methodToUse);
+
+    if (methodToUse === 'cash' || methodToUse === 'upi') {
+      sound.playCashSuccess(settings.soundEnabled);
+      const billInfo = storage.getNextBillAndToken();
+
+      const finalSplit =
+        methodToUse === 'cash'
+          ? {
+              cash: finalTotal,
+              upi: 0,
+              card: 0,
+              cashReceived: finalTotal,
+              cashChange: 0,
+            }
+          : {
+              cash: 0,
+              upi: finalTotal,
+              card: 0,
+            };
+
+      const newBill: Bill = {
+        id: billInfo.billId,
+        billNumber: billInfo.billNumber,
+        tokenNumber: billInfo.tokenNumber,
+        timestamp: Date.now(),
+        createdAt: new Date().toISOString(),
+        items: cart,
+        itemCount: totalItemCount,
+        subtotal,
+        discountType,
+        discountValue,
+        discountAmount,
+        gstEnabled,
+        gstRate: settings.defaultGstRate,
+        gstAmount,
+        totalAmount: finalTotal,
+        orderType,
+        tableOrToken,
+        paymentMethod: methodToUse,
+        paymentSplit: finalSplit,
+        status: 'completed',
+      };
+
+      handleCompleteSale(newBill);
+      return;
+    }
+
+    setIsCartOpen(false);
+    setIsPaymentOpen(true);
+  };
+
   // Cancel / Refund Bill
   const handleCancelBill = (billId: string, reason: string) => {
     const updated = storage.cancelBill(billId, reason);
@@ -379,10 +442,7 @@ export default function App() {
               settings={settings}
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
-              onProceedToPayment={(chosen) => {
-                if (chosen) setPaymentMethod(chosen);
-                setIsPaymentOpen(true);
-              }}
+              onProceedToPayment={handleProceedToCheckout}
               soundEnabled={settings.soundEnabled}
               isDesktopSidebar={true}
             />
@@ -480,11 +540,7 @@ export default function App() {
         settings={settings}
         paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
-        onProceedToPayment={(chosen) => {
-          if (chosen) setPaymentMethod(chosen);
-          setIsCartOpen(false);
-          setIsPaymentOpen(true);
-        }}
+        onProceedToPayment={handleProceedToCheckout}
         soundEnabled={settings.soundEnabled}
         isDesktopSidebar={false}
       />

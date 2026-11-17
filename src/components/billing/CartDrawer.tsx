@@ -524,10 +524,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           >
             <span>
               {paymentMethod === 'upi'
-                ? 'Scan UPI QR'
+                ? 'UPI • Print Bill'
                 : paymentMethod === 'split'
                 ? 'Split Payment'
-                : 'Pay with Cash'}
+                : 'Cash • Print Bill'}
             </span>
             <span className="text-lg font-bold tabular-nums">
               {formatCurrency(finalTotal)}
