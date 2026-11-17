@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Bill, AppSettings } from '../../types';
 import {
   X,
@@ -11,6 +12,7 @@ import {
   Copy,
   Send,
   Image as ImageIcon,
+  Bluetooth,
 } from 'lucide-react';
 import {
   formatCurrency,
@@ -19,6 +21,7 @@ import {
 } from '../../utils/format';
 import { sound } from '../../utils/sound';
 import { shareBillAsImageToWhatsApp, downloadReceiptImage } from '../../utils/billImage';
+import { printViaRawBT } from '../../utils/thermalPrint';
 
 interface ReceiptModalProps {
   bill: Bill | null;
@@ -49,6 +52,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   const handlePrint = () => {
     sound.playTap(soundEnabled);
     window.print();
+  };
+
+  const handleRawBTPrint = () => {
+    sound.playTap(soundEnabled);
+    printViaRawBT(bill, settings, viewMode, printerWidth);
   };
 
   const handleWhatsAppShareText = () => {
@@ -421,24 +429,45 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </button>
 
             {/* Print and Actions Grid */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={handlePrint}
-                className="col-span-2 py-2 bg-black hover:bg-black/90 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-black transition-colors min-h-[40px]"
+                onClick={handleRawBTPrint}
+                title="1-tap print to paired Android Bluetooth printer via RawBT app"
+                className="py-2 bg-black hover:bg-black/90 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-black transition-colors min-h-[40px]"
               >
-                <Printer className="w-4 h-4 stroke-[2.5]" />
-                <span>Print {isKot ? 'KOT' : 'Receipt'}</span>
+                <Bluetooth className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Android Print (RawBT)</span>
               </button>
 
               <button
                 type="button"
+                onClick={handlePrint}
+                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 border border-black transition-colors min-h-[40px]"
+              >
+                <Printer className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Print {isKot ? 'KOT' : 'Receipt'}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
                 onClick={handleDownloadImage}
                 title="Download Bill Image PNG"
-                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[40px]"
+                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[38px]"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Picture</span>
+                <span>Save Picture</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyReceipt}
+                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[38px]"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>{copiedText ? 'Copied!' : 'Copy Text'}</span>
               </button>
             </div>
 
@@ -454,8 +483,9 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         </div>
       </div>
 
-      {/* Hidden Thermal Printer DOM Element (Always available for browser print engine) */}
-      <div id="thermal-receipt-print-area" className={printerWidth === '58mm' ? 'receipt-58mm' : 'receipt-80mm'}>
+      {/* Hidden Thermal Printer DOM Element Portaled directly to body so #root can hide cleanly on print */}
+      {createPortal(
+        <div id="thermal-receipt-print-area" className={printerWidth === '58mm' ? 'receipt-58mm' : 'receipt-80mm'}>
         {!isKot ? (
           <div>
             <div style={{ textAlign: 'center', paddingBottom: '4px', borderBottom: '1px dashed black' }}>
@@ -566,7 +596,9 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
           </div>
         )}
-      </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 };

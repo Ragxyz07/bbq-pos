@@ -80,58 +80,65 @@
   color: #ffffff;
 }
 
+/* Hidden on screen so it never shifts or breaks UI layout */
+#thermal-receipt-print-area {
+  display: none;
+}
+
 /* Thermal Printer CSS - Strictly Times New Roman and Pure Two-Color B&W on paper */
 @media print {
+  @page {
+    margin: 2mm;
+  }
+
+  html,
   body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
     font-family: 'Times New Roman', Times, Georgia, serif !important;
   }
 
-  body * {
-    visibility: hidden;
-  }
-
-  #thermal-receipt-print-area,
-  #thermal-receipt-print-area * {
-    visibility: visible;
-    color: #000000 !important;
-    background: transparent !important;
-    border-color: #000000 !important;
+  #root,
+  .no-print {
+    display: none !important;
   }
 
   #thermal-receipt-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100% !important;
-    max-width: 100% !important;
+    display: block !important;
+    position: static !important;
     margin: 0 !important;
     padding: 2mm !important;
     background: #ffffff !important;
     color: #000000 !important;
     font-family: 'Times New Roman', Times, Georgia, serif !important;
-    font-size: 11px !important;
     line-height: 1.25 !important;
   }
 
-  .no-print {
-    display: none !important;
+  #thermal-receipt-print-area * {
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #000000 !important;
   }
-}
 
-/* 58mm Thermal Print Specs */
-.receipt-58mm {
-  width: 54mm;
-  font-size: 11px;
-}
+  /* 58mm Thermal Print Specs */
+  #thermal-receipt-print-area.receipt-58mm {
+    width: 54mm !important;
+    max-width: 54mm !important;
+    font-size: 11px !important;
+  }
 
-/* 80mm Thermal Print Specs */
-.receipt-80mm {
-  width: 76mm;
-  font-size: 12px;
+  /* 80mm Thermal Print Specs */
+  #thermal-receipt-print-area.receipt-80mm {
+    width: 76mm !important;
+    max-width: 76mm !important;
+    font-size: 12px !important;
+  }
 }
 
 /* Safe area utilities & mobile helpers */
