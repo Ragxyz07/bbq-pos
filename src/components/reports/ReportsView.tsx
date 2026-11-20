@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Bill, DrawerClosing, CashDenominationCount, AppSettings } from '../../types';
 import {
   Download,
@@ -29,12 +29,31 @@ interface ReportsViewProps {
   soundEnabled?: boolean;
 }
 
+const toLocalDateKey = (timestamp: number): string => {
+  const d = new Date(timestamp);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const parseDateKey = (dateKey: string): Date => {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+};
+
 export const ReportsView: React.FC<ReportsViewProps> = ({
   bills,
   settings = storage.getSettings(),
   soundEnabled = true,
 }) => {
-  const [timeRange, setTimeRange] = useState<'today' | 'weekly' | 'monthly' | 'all'>('today');
+  const todayKey = toLocalDateKey(Date.now());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayKey = toLocalDateKey(yesterdayDate.getTime());
+
+  const [timeRange, setTimeRange] = useState<'day' | 'weekly' | 'monthly'>('day');
+  const [selectedDateKey, setSelectedDateKey] = useState<string>(todayKey);
   const [showDrawerModal, setShowDrawerModal] = useState<boolean>(false);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [ownerPhone, setOwnerPhone] = useState<string>('');
@@ -55,28 +74,70 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   });
   const [coinsAmount, setCoinsAmount] = useState<number>(0);
 
-  // Filter bills based on range
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  const getDayCategoryName = (dateKey: string) => {
+    if (dateKey === todayKey) return 'Today';
+    if (dateKey === yesterdayKey) return 'Yesterday';
+    return parseDateKey(dateKey).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
-  const filteredBills = bills.filter((b) => {
-    const billDate = new Date(b.timestamp);
-    if (timeRange === 'today') {
-      return billDate.toISOString().split('T')[0] === todayStr;
-    }
-    if (timeRange === 'weekly') {
-      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      return billDate >= sevenDaysAgo;
-    }
-    if (timeRange === 'monthly') {
+  const getFullHeaderDate = (dateKey: string) => {
+    return parseDateKey(dateKey).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  // Group counts per local calendar day matching OrderHistory
+  const { dayCounts, orderedDayKeys } = useMemo(() => {
+    const completedCounts: Record<string, number> = {};
+    const allDates = new Set<string>([todayKey, yesterdayKey, selectedDateKey]);
+
+    bills.forEach((b) => {
+      const k = toLocalDateKey(b.timestamp);
+      allDates.add(k);
+      if (b.status === 'completed') {
+        completedCounts[k] = (completedCounts[k] || 0) + 1;
+      }
+    });
+
+    const sorted = Array.from(allDates).sort((a, b) => b.localeCompare(a));
+    return { dayCounts: completedCounts, orderedDayKeys: sorted };
+  }, [bills, todayKey, yesterdayKey, selectedDateKey]);
+
+  const now = new Date();
+
+  const filteredBills = useMemo(() => {
+    return bills.filter((b) => {
+      const billDate = new Date(b.timestamp);
+      if (timeRange === 'day') {
+        return toLocalDateKey(b.timestamp) === selectedDateKey;
+      }
+      if (timeRange === 'weekly') {
+        const startOfWeekWindow = new Date();
+        startOfWeekWindow.setHours(0, 0, 0, 0);
+        startOfWeekWindow.setDate(startOfWeekWindow.getDate() - 6);
+        return billDate >= startOfWeekWindow;
+      }
       return (
         billDate.getMonth() === now.getMonth() && billDate.getFullYear() === now.getFullYear()
       );
-    }
-    return true;
-  });
+    });
+  }, [bills, timeRange, selectedDateKey]);
 
   const completedBills = filteredBills.filter((b) => b.status === 'completed');
+
+  const activeRangeLabel =
+    timeRange === 'day'
+      ? getDayCategoryName(selectedDateKey).toUpperCase()
+      : timeRange === 'weekly'
+      ? 'WEEKLY'
+      : 'MONTHLY';
 
   // KPI Calculations
   const totalRevenue = completedBills.reduce((sum, b) => sum + b.totalAmount, 0);
@@ -166,13 +227,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `BBQ_Boxx_Sales_Report_${timeRange}_${todayStr}.csv`);
+    const fileTag = timeRange === 'day' ? selectedDateKey : `${timeRange}_${todayKey}`;
+    link.setAttribute('download', `BBQ_Boxx_Sales_Report_${fileTag}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // EOD Cash Drawer calculation
+  // EOD Cash Drawer calculation (uses selected date when in day view, otherwise today)
+  const activeDayKey = timeRange === 'day' ? selectedDateKey : todayKey;
+
   const totalDenominationCash =
     (denominations[500] || 0) * 500 +
     (denominations[200] || 0) * 200 +
@@ -182,49 +246,46 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     (denominations[10] || 0) * 10 +
     coinsAmount;
 
-  // Expected cash = Opening float + today's cash sales
-  const todayCompletedBills = bills.filter(
-    (b) =>
-      new Date(b.timestamp).toISOString().split('T')[0] === todayStr &&
-      b.status === 'completed'
+  const dayCompletedBills = bills.filter(
+    (b) => toLocalDateKey(b.timestamp) === activeDayKey && b.status === 'completed'
   );
 
-  const todayTotalSales = todayCompletedBills.reduce((sum, b) => sum + b.totalAmount, 0);
+  const dayTotalSales = dayCompletedBills.reduce((sum, b) => sum + b.totalAmount, 0);
 
-  let todayCashSales = 0;
-  let todayUpiSales = 0;
-  let todayCardSales = 0;
+  let dayCashSales = 0;
+  let dayUpiSales = 0;
+  let dayCardSales = 0;
 
-  todayCompletedBills.forEach((b) => {
-    if (b.paymentMethod === 'cash') todayCashSales += b.totalAmount;
-    else if (b.paymentMethod === 'upi') todayUpiSales += b.totalAmount;
-    else if (b.paymentMethod === 'card') todayCardSales += b.totalAmount;
+  dayCompletedBills.forEach((b) => {
+    if (b.paymentMethod === 'cash') dayCashSales += b.totalAmount;
+    else if (b.paymentMethod === 'upi') dayUpiSales += b.totalAmount;
+    else if (b.paymentMethod === 'card') dayCardSales += b.totalAmount;
     else if (b.paymentMethod === 'split' && b.paymentSplit) {
-      todayCashSales += b.paymentSplit.cash || 0;
-      todayUpiSales += b.paymentSplit.upi || 0;
-      todayCardSales += b.paymentSplit.card || 0;
+      dayCashSales += b.paymentSplit.cash || 0;
+      dayUpiSales += b.paymentSplit.upi || 0;
+      dayCardSales += b.paymentSplit.card || 0;
     }
   });
 
-  const todayDineInBills = todayCompletedBills.filter((b) => b.orderType === 'dine-in');
-  const todayParcelBills = todayCompletedBills.filter((b) => b.orderType === 'parcel');
-  const todayDineInSales = todayDineInBills.reduce((sum, b) => sum + b.totalAmount, 0);
-  const todayParcelSales = todayParcelBills.reduce((sum, b) => sum + b.totalAmount, 0);
+  const dayDineInBills = dayCompletedBills.filter((b) => b.orderType === 'dine-in');
+  const dayParcelBills = dayCompletedBills.filter((b) => b.orderType === 'parcel');
+  const dayDineInSales = dayDineInBills.reduce((sum, b) => sum + b.totalAmount, 0);
+  const dayParcelSales = dayParcelBills.reduce((sum, b) => sum + b.totalAmount, 0);
 
-  const expectedDrawerCash = openingFloat + todayCashSales;
+  const expectedDrawerCash = openingFloat + dayCashSales;
   const drawerVariance = totalDenominationCash - expectedDrawerCash;
 
-  const todaySummary: DayClosingSummary = {
-    dateStr: todayStr,
-    totalSales: todayTotalSales,
-    totalBills: todayCompletedBills.length,
-    cashSales: todayCashSales,
-    upiSales: todayUpiSales,
-    cardSales: todayCardSales,
-    dineInCount: todayDineInBills.length,
-    parcelCount: todayParcelBills.length,
-    dineInSales: todayDineInSales,
-    parcelSales: todayParcelSales,
+  const daySummary: DayClosingSummary = {
+    dateStr: activeDayKey,
+    totalSales: dayTotalSales,
+    totalBills: dayCompletedBills.length,
+    cashSales: dayCashSales,
+    upiSales: dayUpiSales,
+    cardSales: dayCardSales,
+    dineInCount: dayDineInBills.length,
+    parcelCount: dayParcelBills.length,
+    dineInSales: dayDineInSales,
+    parcelSales: dayParcelSales,
     openingFloat,
     countedCash: totalDenominationCash,
     expectedCash: expectedDrawerCash,
@@ -233,7 +294,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   const handleShareWhatsAppText = () => {
     sound.playTap(soundEnabled);
-    const message = generateDayClosingWhatsAppMessage(todaySummary, settings);
+    const message = generateDayClosingWhatsAppMessage(daySummary, settings);
     let waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     if (ownerPhone && ownerPhone.trim()) {
       const clean = ownerPhone.replace(/\D/g, '');
@@ -247,7 +308,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     sound.playTap(soundEnabled);
     setIsSharingImage(true);
     try {
-      await shareDayClosingAsImageToWhatsApp(todaySummary, settings, ownerPhone);
+      await shareDayClosingAsImageToWhatsApp(daySummary, settings, ownerPhone);
     } catch (err) {
       console.error('Error sharing daily report picture:', err);
     } finally {
@@ -258,7 +319,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   const handleDownloadClosingPicture = async () => {
     sound.playTap(soundEnabled);
     try {
-      await downloadDayClosingImage(todaySummary, settings);
+      await downloadDayClosingImage(daySummary, settings);
     } catch (err) {
       console.error('Error downloading picture:', err);
     }
@@ -266,7 +327,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   const handleCopySummary = () => {
     sound.playTap(soundEnabled);
-    const text = generateDayClosingWhatsAppMessage(todaySummary, settings);
+    const text = generateDayClosingWhatsAppMessage(daySummary, settings);
     navigator.clipboard.writeText(text);
     setCopiedText(true);
     setTimeout(() => setCopiedText(false), 2000);
@@ -277,18 +338,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     const newClosing: DrawerClosing = {
       id: `CLOSE-${Date.now()}`,
       timestamp: Date.now(),
-      dateStr: todayStr,
+      dateStr: activeDayKey,
       openingCash: openingFloat,
       expectedCash: expectedDrawerCash,
       actualCash: totalDenominationCash,
       difference: drawerVariance,
       denominations: { ...denominations },
       notes: closingNotes,
-      totalSales: todayTotalSales,
-      totalBills: todayCompletedBills.length,
-      cashSales: todayCashSales,
-      upiSales: todayUpiSales,
-      cardSales: todayCardSales,
+      totalSales: dayTotalSales,
+      totalBills: dayCompletedBills.length,
+      cashSales: dayCashSales,
+      upiSales: dayUpiSales,
+      cardSales: dayCardSales,
       closedAt: new Date().toISOString(),
     };
 
@@ -312,25 +373,59 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </span>
           </div>
           <p className="text-xs text-black/70 mt-1">
-            Sales velocity, Hand Cash &amp; GPay reconciliation, top items, and daily closing.
+            Day-wise sales reports, Hand Cash &amp; GPay reconciliation, top items, and daily closing.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Range Buttons */}
+          {/* Range Buttons: Today | Yesterday | Weekly | Monthly */}
           <div className="flex border border-black p-0.5 text-xs bg-white overflow-x-auto no-scrollbar max-w-full">
-            {(['today', 'weekly', 'monthly', 'all'] as const).map((rng) => (
+            {[
+              {
+                id: 'today',
+                label: 'Today',
+                isActive: timeRange === 'day' && selectedDateKey === todayKey,
+                onClick: () => {
+                  setTimeRange('day');
+                  setSelectedDateKey(todayKey);
+                },
+              },
+              {
+                id: 'yesterday',
+                label: 'Yesterday',
+                isActive: timeRange === 'day' && selectedDateKey === yesterdayKey,
+                onClick: () => {
+                  setTimeRange('day');
+                  setSelectedDateKey(yesterdayKey);
+                },
+              },
+              {
+                id: 'weekly',
+                label: 'Weekly',
+                isActive: timeRange === 'weekly',
+                onClick: () => setTimeRange('weekly'),
+              },
+              {
+                id: 'monthly',
+                label: 'Monthly',
+                isActive: timeRange === 'monthly',
+                onClick: () => setTimeRange('monthly'),
+              },
+            ].map((btn) => (
               <button
-                key={rng}
+                key={btn.id}
                 type="button"
-                onClick={() => setTimeRange(rng)}
-                className={`px-2.5 sm:px-3 py-1.5 font-bold uppercase transition-colors min-h-[36px] ${
-                  timeRange === rng
+                onClick={() => {
+                  sound.playTap(soundEnabled);
+                  btn.onClick();
+                }}
+                className={`px-2.5 sm:px-3 py-1.5 font-bold uppercase transition-colors min-h-[36px] whitespace-nowrap ${
+                  btn.isActive
                     ? 'bg-red-600 text-white'
                     : 'bg-white text-black hover:bg-black/5'
                 }`}
               >
-                {rng}
+                {btn.label}
               </button>
             ))}
           </div>
@@ -367,17 +462,95 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
       </div>
 
+      {/* Day Category Selector: Today, Yesterday, and Past Dates + Date Picker (Same as Order History) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-black/20">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          {orderedDayKeys.map((dateKey) => {
+            const isActive = timeRange === 'day' && selectedDateKey === dateKey;
+            const count = dayCounts[dateKey] || 0;
+            return (
+              <button
+                key={dateKey}
+                type="button"
+                onClick={() => {
+                  sound.playTap(soundEnabled);
+                  setSelectedDateKey(dateKey);
+                  setTimeRange('day');
+                }}
+                className={`px-3 py-1.5 text-xs font-bold border transition-colors whitespace-nowrap flex items-center gap-1.5 min-h-[38px] ${
+                  isActive
+                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                    : 'bg-white text-black border-black/60 hover:border-black hover:bg-black/5'
+                }`}
+              >
+                <span>{getDayCategoryName(dateKey)}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 border ${
+                    isActive
+                      ? 'bg-white text-red-600 border-white'
+                      : 'bg-white text-black border-black/40'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Direct Date Picker */}
+        <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+          <label className="flex items-center gap-1.5 border border-black/60 px-2.5 py-1.5 bg-white text-xs font-bold text-black min-h-[38px]">
+            <Calendar className="w-3.5 h-3.5 text-red-600 shrink-0" />
+            <input
+              type="date"
+              value={selectedDateKey}
+              max={todayKey}
+              onChange={(e) => {
+                if (e.target.value) {
+                  sound.playTap(soundEnabled);
+                  setSelectedDateKey(e.target.value);
+                  setTimeRange('day');
+                }
+              }}
+              className="bg-transparent text-xs font-bold text-black focus:outline-none cursor-pointer"
+              aria-label="Filter reports by date"
+            />
+          </label>
+        </div>
+      </div>
+
+      {/* Selected Day / Period Banner */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="px-2.5 py-0.5 bg-black text-white text-[11px] font-bold uppercase tracking-wider">
+            {activeRangeLabel}
+          </span>
+          <span className="text-xs sm:text-sm font-bold text-black">
+            {timeRange === 'day'
+              ? getFullHeaderDate(selectedDateKey)
+              : timeRange === 'weekly'
+              ? 'Last 7 Days'
+              : now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </span>
+        </div>
+        <div className="text-xs font-bold text-black/80 tabular-nums shrink-0">
+          {completedBills.length} {completedBills.length === 1 ? 'Order' : 'Orders'} •{' '}
+          {formatCurrency(totalRevenue)}
+        </div>
+      </div>
+
       {/* 4 Primary KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         <div className="p-3.5 sm:p-4 bg-white border border-black flex flex-col justify-between">
           <div className="text-[10px] font-bold uppercase tracking-wider text-black/70 mb-1">
-            Total Sales ({timeRange.toUpperCase()})
+            Total Sales ({activeRangeLabel})
           </div>
           <div className="text-xl sm:text-2xl font-bold tabular-nums text-black">
             {formatCurrency(totalRevenue)}
           </div>
           <div className="text-[10px] text-black/70 mt-1">
-            {completedBills.length} orders
+            {completedBills.length} {completedBills.length === 1 ? 'order' : 'orders'}
           </div>
         </div>
 
@@ -448,11 +621,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   className="bg-red-600 border-l border-r border-black h-full"
                   title={`UPI: ${formatCurrency(upiSales)}`}
                 />
-                <div
-                  style={{ width: `${(cardSales / totalRevenue) * 100}%` }}
-                  className="bg-black/30 h-full"
-                  title={`Card: ${formatCurrency(cardSales)}`}
-                />
+                {cardSales > 0 && (
+                  <div
+                    style={{ width: `${(cardSales / totalRevenue) * 100}%` }}
+                    className="bg-black/30 h-full"
+                    title={`Card: ${formatCurrency(cardSales)}`}
+                  />
+                )}
               </>
             ) : (
               <div className="w-full bg-white" />
@@ -460,7 +635,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
 
           {/* Legend Items */}
-          <div className="grid grid-cols-3 gap-2 pt-1 text-xs">
+          <div className={`grid gap-2 pt-1 text-xs ${cardSales > 0 ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <div className="p-2.5 border border-black bg-white">
               <div className="font-bold mb-0.5 uppercase text-[10px] sm:text-[11px] flex items-center gap-1">
                 <span className="w-2 h-2 bg-black inline-block shrink-0" />
@@ -487,18 +662,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </div>
             </div>
 
-            <div className="p-2.5 border border-black bg-white">
-              <div className="font-bold mb-0.5 uppercase text-[10px] sm:text-[11px] flex items-center gap-1">
-                <span className="w-2 h-2 bg-black/30 border border-black inline-block shrink-0" />
-                <span>Card</span>
+            {cardSales > 0 && (
+              <div className="p-2.5 border border-black bg-white">
+                <div className="font-bold mb-0.5 uppercase text-[10px] sm:text-[11px] flex items-center gap-1">
+                  <span className="w-2 h-2 bg-black/30 border border-black inline-block shrink-0" />
+                  <span>Card</span>
+                </div>
+                <div className="text-sm font-bold text-black">
+                  {formatCurrency(cardSales)}
+                </div>
+                <div className="text-[10px] text-black/70">
+                  {totalRevenue > 0 ? `${Math.round((cardSales / totalRevenue) * 100)}%` : '0%'}
+                </div>
               </div>
-              <div className="text-sm font-bold text-black">
-                {formatCurrency(cardSales)}
-              </div>
-              <div className="text-[10px] text-black/70">
-                {totalRevenue > 0 ? `${Math.round((cardSales / totalRevenue) * 100)}%` : '0%'}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -543,7 +720,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Top Selling Items Table */}
       <div className="p-4 sm:p-5 bg-white border border-black space-y-3">
         <h3 className="text-sm font-bold uppercase tracking-wider text-black">
-          Top Selling BBQ Items ({timeRange.toUpperCase()})
+          Top Selling BBQ Items ({activeRangeLabel})
         </h3>
 
         {topItems.length === 0 ? (
@@ -625,8 +802,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="w-full max-w-sm sm:max-w-md bg-white text-black border-2 border-black flex flex-col max-h-[84dvh] overflow-hidden shadow-2xl">
             <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
               <div>
-                <h3 className="text-sm sm:text-base font-bold uppercase text-black">End-of-Day Cash Drawer Closing</h3>
-                <span className="text-xs text-black/70">Reconcile physical cash with system bills</span>
+                <h3 className="text-sm sm:text-base font-bold uppercase text-black">
+                  Cash Drawer Closing ({getDayCategoryName(activeDayKey)})
+                </h3>
+                <span className="text-xs text-black/70">
+                  {getFullHeaderDate(activeDayKey)}
+                </span>
               </div>
               <button
                 onClick={() => setShowDrawerModal(false)}
@@ -640,9 +821,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               {/* Expected Cash Summary */}
               <div className="grid grid-cols-2 gap-3 p-3 border border-black text-xs bg-white">
                 <div>
-                  <span className="text-black/70 block uppercase">Today's Cash Sales:</span>
+                  <span className="text-black/70 block uppercase">
+                    {getDayCategoryName(activeDayKey)} Cash Sales:
+                  </span>
                   <span className="text-base font-bold text-black">
-                    {formatCurrency(todayCashSales)}
+                    {formatCurrency(dayCashSales)}
                   </span>
                 </div>
                 <div>
@@ -778,14 +961,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
       )}
 
-      {/* Share Today's Sales Modal */}
+      {/* Share Day Sales Modal */}
       {showShareModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
           <div className="w-full max-w-sm sm:max-w-md bg-white text-black border-2 border-black flex flex-col overflow-hidden max-h-[84dvh] shadow-2xl">
             {/* Modal Header */}
             <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
               <div>
-                <h3 className="text-sm sm:text-base font-bold uppercase text-black">Share Day Closing Report</h3>
+                <h3 className="text-sm sm:text-base font-bold uppercase text-black">
+                  Share Day Closing Report ({getDayCategoryName(activeDayKey)})
+                </h3>
                 <span className="text-[11px] text-black/70">Total Sales, Hand Cash &amp; GPay Breakdown</span>
               </div>
               <button
@@ -805,7 +990,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     {settings.businessName}
                   </span>
                   <span className="text-[11px] font-bold text-black">
-                    {todayStr}
+                    {activeDayKey}
                   </span>
                 </div>
 
@@ -815,13 +1000,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       Total Sales
                     </span>
                     <span className="text-2xl font-bold text-black">
-                      {formatCurrency(todayTotalSales)}
+                      {formatCurrency(dayTotalSales)}
                     </span>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-black/70 block font-bold uppercase">Orders</span>
                     <span className="text-sm font-bold text-black">
-                      {todayCompletedBills.length} Completed
+                      {dayCompletedBills.length} Completed
                     </span>
                   </div>
                 </div>
@@ -833,7 +1018,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       HAND CASH
                     </span>
                     <span className="text-base font-bold text-black">
-                      {formatCurrency(todayCashSales)}
+                      {formatCurrency(dayCashSales)}
                     </span>
                   </div>
                   <div className="p-2.5 border border-black bg-white">
@@ -841,15 +1026,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       GPAY / UPI
                     </span>
                     <span className="text-base font-bold text-black">
-                      {formatCurrency(todayUpiSales)}
+                      {formatCurrency(dayUpiSales)}
                     </span>
                   </div>
                 </div>
 
                 {/* Dine-in vs Parcel Orders Breakdown */}
                 <div className="p-2.5 border border-black flex items-center justify-between text-xs bg-white flex-wrap gap-1">
-                  <span>DINE-IN: {todayDineInBills.length} ({formatCurrency(todayDineInSales)})</span>
-                  <span>PARCEL: {todayParcelBills.length} ({formatCurrency(todayParcelSales)})</span>
+                  <span>DINE-IN: {dayDineInBills.length} ({formatCurrency(dayDineInSales)})</span>
+                  <span>PARCEL: {dayParcelBills.length} ({formatCurrency(dayParcelSales)})</span>
                 </div>
 
                 {/* Cash Drawer Reconciliation Summary */}

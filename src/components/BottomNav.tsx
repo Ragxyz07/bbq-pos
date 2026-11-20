@@ -1,17 +1,19 @@
 import React from 'react';
 import { ActiveTab } from '../types';
-import { UtensilsCrossed, Receipt, BarChart3, Settings2, SlidersHorizontal } from 'lucide-react';
+import { UtensilsCrossed, Receipt, Package, BarChart3, Settings2, SlidersHorizontal } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   cartCount: number;
+  lowStockCount?: number;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
   activeTab,
   setActiveTab,
   cartCount,
+  lowStockCount = 0,
 }) => {
   const tabs = [
     {
@@ -24,6 +26,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       id: 'orders' as ActiveTab,
       label: 'Orders',
       icon: Receipt,
+    },
+    {
+      id: 'inventory' as ActiveTab,
+      label: 'Stock',
+      icon: Package,
+      badge: lowStockCount > 0 ? lowStockCount : undefined,
     },
     {
       id: 'reports' as ActiveTab,
@@ -44,7 +52,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-black pb-safe md:hidden select-none">
-      <div className="grid grid-cols-5 h-14 items-center">
+      <div className="grid grid-cols-6 h-14 items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -59,16 +67,16 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <div className="relative">
                 <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110 text-red-600' : ''}`} />
                 {tab.badge !== undefined && (
-                  <span className="absolute -top-1.5 -right-3 bg-red-600 text-white text-[10px] font-bold px-1 py-0.2 min-w-[16px] text-center border border-red-600">
+                  <span className="absolute -top-1.5 -right-3 bg-red-600 text-white text-[9px] font-bold px-1 py-0.2 min-w-[15px] text-center border border-red-600">
                     {tab.badge}
                   </span>
                 )}
               </div>
-              <span className="text-[11px] tracking-tight mt-0.5 whitespace-nowrap">
+              <span className="text-[10px] tracking-tight mt-0.5 whitespace-nowrap">
                 {tab.label}
               </span>
               {isActive && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-red-600" />
+                <span className="absolute bottom-0 left-1.5 right-1.5 h-0.5 bg-red-600" />
               )}
             </button>
           );

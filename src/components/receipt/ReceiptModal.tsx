@@ -4,30 +4,27 @@ import { Bill, AppSettings } from '../../types';
 import {
   X,
   Printer,
-  Share2,
   Download,
   UtensilsCrossed,
   Receipt as ReceiptIcon,
-  CheckCircle2,
-  Copy,
-  Send,
-  Image as ImageIcon,
-  Bluetooth,
 } from 'lucide-react';
 import {
   formatCurrency,
   formatDateTime,
-  generateWhatsAppMessage,
 } from '../../utils/format';
 import { sound } from '../../utils/sound';
-import { shareBillAsImageToWhatsApp, downloadReceiptImage } from '../../utils/billImage';
-import { printViaRawBT } from '../../utils/thermalPrint';
+import { downloadReceiptImage } from '../../utils/billImage';
+import {
+  printViaRawBT,
+  printViaWebBluetooth,
+} from '../../utils/thermalPrint';
 
 interface ReceiptModalProps {
   bill: Bill | null;
   isOpen: boolean;
   onClose: () => void;
   settings: AppSettings;
+  autoPrintOnOpen?: boolean;
   soundEnabled?: boolean;
 }
 
@@ -36,56 +33,60 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   isOpen,
   onClose,
   settings,
+  autoPrintOnOpen = false,
   soundEnabled = true,
 }) => {
   const [viewMode, setViewMode] = useState<'receipt' | 'kot'>('receipt');
   const [printerWidth, setPrinterWidth] = useState<'58mm' | '80mm'>(
     settings.thermalPrinterSize || '58mm'
   );
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [copiedText, setCopiedText] = useState<boolean>(false);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
-  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const autoPrintedBillIdRef = React.useRef<string | null>(null);
+
+  const triggerThermalPrint = React.useCallback(
+    async (targetMode: 'receipt' | 'kot') => {
+      if (!bill) return;
+      const mode = settings.printerMode || 'rawbt';
+
+      if (mode === 'bluetooth') {
+        setIsPrinting(true);
+        setFeedback(null);
+        try {
+          const res = await printViaWebBluetooth(bill, settings, targetMode, printerWidth);
+          setFeedback(res.message);
+          setTimeout(() => setFeedback(null), 5000);
+        } finally {
+          setIsPrinting(false);
+        }
+      } else if (mode === 'rawbt') {
+        printViaRawBT(bill, settings, targetMode, printerWidth);
+      } else {
+        window.print();
+      }
+    },
+    [bill, settings, printerWidth]
+  );
+
+  React.useEffect(() => {
+    if (!isOpen || !bill || !autoPrintOnOpen) return;
+    if (autoPrintedBillIdRef.current === bill.id) return;
+    autoPrintedBillIdRef.current = bill.id;
+
+    const mode = settings.printerMode || 'rawbt';
+    if (mode === 'system') {
+      const t = setTimeout(() => window.print(), 150);
+      return () => clearTimeout(t);
+    }
+    triggerThermalPrint('receipt');
+  }, [isOpen, bill, autoPrintOnOpen, settings.printerMode, triggerThermalPrint]);
 
   if (!isOpen || !bill) return null;
 
-  const handlePrint = () => {
+  const handlePrintBill = () => {
     sound.playTap(soundEnabled);
-    window.print();
-  };
-
-  const handleRawBTPrint = () => {
-    sound.playTap(soundEnabled);
-    printViaRawBT(bill, settings, viewMode, printerWidth);
-  };
-
-  const handleWhatsAppShareText = () => {
-    sound.playTap(soundEnabled);
-    const text = encodeURIComponent(generateWhatsAppMessage(bill, settings));
-    let url = `https://wa.me/?text=${text}`;
-    if (customerPhone.trim()) {
-      const cleanPhone = customerPhone.replace(/\D/g, '');
-      const finalNumber = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-      url = `https://wa.me/${finalNumber}?text=${text}`;
-    }
-    window.open(url, '_blank');
-  };
-
-  const handleShareImageToWhatsApp = async () => {
-    sound.playTap(soundEnabled);
-    setIsGeneratingImage(true);
-    setShareFeedback(null);
-    try {
-      const res = await shareBillAsImageToWhatsApp(bill, settings, customerPhone);
-      if (res.mode === 'download_and_whatsapp') {
-        setShareFeedback('Bill picture downloaded! Attach it into WhatsApp.');
-        setTimeout(() => setShareFeedback(null), 5000);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsGeneratingImage(false);
-    }
+    triggerThermalPrint(viewMode);
   };
 
   const handleDownloadImage = async () => {
@@ -93,21 +94,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     setIsGeneratingImage(true);
     try {
       await downloadReceiptImage(bill, settings);
-      setShareFeedback('Bill picture saved to downloads!');
-      setTimeout(() => setShareFeedback(null), 3000);
+      setFeedback('Picture saved to downloads!');
+      setTimeout(() => setFeedback(null), 3000);
     } catch (err) {
       console.error(err);
     } finally {
       setIsGeneratingImage(false);
     }
-  };
-
-  const handleCopyReceipt = () => {
-    sound.playTap(soundEnabled);
-    const text = generateWhatsAppMessage(bill, settings);
-    navigator.clipboard.writeText(text);
-    setCopiedText(true);
-    setTimeout(() => setCopiedText(false), 2000);
   };
 
   const isKot = viewMode === 'kot';
@@ -116,7 +109,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     <>
       {/* Interactive Modal UI for the Counter */}
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 no-print select-none">
-        <div className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[84dvh] overflow-hidden text-black">
+        <div className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[86dvh] overflow-hidden text-black">
           {/* Header */}
           <div className="px-3.5 sm:px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
             <div className="flex items-center gap-2">
@@ -197,8 +190,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             )}
           </div>
 
-          {/* Paper Bill Preview (Scrollable) */}
-          <div className="flex-1 min-h-0 overflow-y-auto touch-scroll p-3 sm:p-4 bg-black/10 border-b border-black/30 flex items-start sm:items-center justify-center">
+          {/* Paper Bill Preview (Scrollable without top clipping) */}
+          <div className="flex-1 min-h-0 overflow-y-auto touch-scroll p-3 sm:p-4 bg-black/10 border-b border-black/30 flex items-start justify-center">
             <div
               className={`bg-white text-black p-4 shadow-md border border-black leading-tight max-w-full ${
                 printerWidth === '58mm' ? 'w-[270px] text-[11px]' : 'w-[340px] text-xs'
@@ -384,101 +377,47 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
           </div>
 
-          {/* Action Row */}
+          {/* Clean Action Footer: Just Print Bill, Save Picture, and Start Next Order */}
           <div className="p-3 bg-white border-t-2 border-black space-y-2 shrink-0">
-            {/* Feedback notification if image downloaded or shared */}
-            {shareFeedback && (
+            {feedback && (
               <div className="p-2 border border-black bg-black text-white text-xs font-bold text-center">
-                {shareFeedback}
+                {feedback}
               </div>
             )}
 
-            {/* Customer Phone Input for WhatsApp */}
-            <div className="flex items-center gap-2">
-              <input
-                type="tel"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Customer Phone (10 digits for WhatsApp)"
-                className="flex-1 min-w-0 bg-white border border-black px-3 py-1.5 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600 min-h-[38px]"
-              />
-              <button
-                type="button"
-                onClick={handleWhatsAppShareText}
-                title="Send as WhatsApp text message"
-                className="px-3 py-1.5 bg-white hover:bg-black hover:text-white text-black text-xs font-bold flex items-center gap-1 transition-colors border border-black shrink-0 min-h-[38px]"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Text</span>
-              </button>
-            </div>
-
-            {/* Primary Action 1: Share Bill as PICTURE in WhatsApp (BOLD RED) */}
+            {/* Primary CTA: Print Bill */}
             <button
               type="button"
-              disabled={isGeneratingImage}
-              onClick={handleShareImageToWhatsApp}
-              className="w-full py-2.5 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-red-600 transition-colors min-h-[42px] shadow-sm"
+              disabled={isPrinting}
+              onClick={handlePrintBill}
+              className="w-full py-2.5 bg-red-600 hover:bg-red-700 active:scale-[0.99] disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 border border-red-600 transition-colors min-h-[44px] shadow-sm"
             >
-              <ImageIcon className="w-4 h-4 stroke-[2.5]" />
+              <Printer className="w-4 h-4 stroke-[2.5]" />
               <span>
-                {isGeneratingImage
-                  ? 'Generating Picture...'
-                  : 'Share Bill as Picture (WhatsApp)'}
+                {isPrinting ? 'Printing...' : isKot ? 'Print KOT' : 'Print Bill'}
               </span>
             </button>
 
-            {/* Print and Actions Grid */}
+            {/* Secondary Row: Save Picture & Start Next Order */}
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={handleRawBTPrint}
-                title="1-tap print to paired Android Bluetooth printer via RawBT app"
-                className="py-2 bg-black hover:bg-black/90 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-black transition-colors min-h-[40px]"
-              >
-                <Bluetooth className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Android Print (RawBT)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 border border-black transition-colors min-h-[40px]"
-              >
-                <Printer className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Print {isKot ? 'KOT' : 'Receipt'}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
+                disabled={isGeneratingImage}
                 onClick={handleDownloadImage}
-                title="Download Bill Image PNG"
-                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[38px]"
+                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 disabled:opacity-50 text-black font-bold text-xs flex items-center justify-center gap-1.5 border border-black transition-colors min-h-[40px]"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Save Picture</span>
+                <span>{isGeneratingImage ? 'Saving...' : 'Save Picture'}</span>
               </button>
 
               <button
                 type="button"
-                onClick={handleCopyReceipt}
-                className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-black min-h-[38px]"
+                onClick={onClose}
+                className="py-2 bg-black hover:bg-black/90 active:scale-95 text-white font-bold text-xs border border-black transition-colors min-h-[40px]"
               >
-                <Copy className="w-3.5 h-3.5" />
-                <span>{copiedText ? 'Copied!' : 'Copy Text'}</span>
+                Start Next Order
               </button>
             </div>
-
-            {/* New Order Button */}
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full py-2 bg-white hover:bg-black/5 text-black text-xs font-bold border border-black transition-colors"
-            >
-              Start Next Order
-            </button>
           </div>
         </div>
       </div>

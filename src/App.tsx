@@ -10,6 +10,8 @@ import {
   AppSettings,
   OrderType,
   PaymentMethod,
+  InventoryItem,
+  InventoryLogEntry,
 } from './types';
 import { storage } from './utils/storage';
 import { sound } from './utils/sound';
@@ -25,6 +27,7 @@ import { CartDrawer } from './components/billing/CartDrawer';
 import { PaymentModal } from './components/billing/PaymentModal';
 import { ReceiptModal } from './components/receipt/ReceiptModal';
 import { OrderHistory } from './components/history/OrderHistory';
+import { InventoryView } from './components/inventory/InventoryView';
 import { ReportsView } from './components/reports/ReportsView';
 import { MenuManager } from './components/admin/MenuManager';
 import { SettingsView } from './components/settings/SettingsView';
@@ -36,6 +39,12 @@ export default function App() {
   const [items, setItems] = useState<MenuItem[]>(() => storage.getMenuItems());
   const [settings, setSettings] = useState<AppSettings>(() => storage.getSettings());
   const [bills, setBills] = useState<Bill[]>(() => storage.getBills());
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(() =>
+    storage.getInventoryItems()
+  );
+  const [inventoryLogs, setInventoryLogs] = useState<InventoryLogEntry[]>(() =>
+    storage.getInventoryLogs()
+  );
 
   // Navigation & Security
   const [activeTab, setActiveTab] = useState<ActiveTab>('billing');
@@ -64,6 +73,7 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState<boolean>(false);
   const [completedReceiptBill, setCompletedReceiptBill] = useState<Bill | null>(null);
+  const [shouldAutoPrintReceipt, setShouldAutoPrintReceipt] = useState<boolean>(false);
 
   // Undo Toast state
   const [undoToast, setUndoToast] = useState<{
@@ -76,9 +86,13 @@ export default function App() {
     storage.saveCart(cart);
   }, [cart]);
 
-  // Tab switching with PIN protection for Reports & Admin
+  // Tab switching with PIN protection for Reports, Admin & Inventory
   const handleRequestTab = (tab: ActiveTab) => {
-    if ((tab === 'reports' || tab === 'admin') && settings.pinRequired && !isUnlocked) {
+    if (
+      (tab === 'reports' || tab === 'admin' || tab === 'inventory') &&
+      settings.pinRequired &&
+      !isUnlocked
+    ) {
       setPendingTabForPin(tab);
     } else {
       setActiveTab(tab);
@@ -95,7 +109,7 @@ export default function App() {
 
   const handleLock = () => {
     setIsUnlocked(false);
-    if (activeTab === 'reports' || activeTab === 'admin') {
+    if (activeTab === 'reports' || activeTab === 'admin' || activeTab === 'inventory') {
       setActiveTab('billing');
     }
   };
@@ -224,6 +238,7 @@ export default function App() {
     setBills(updatedBills);
 
     // Open Receipt & clear cart
+    setShouldAutoPrintReceipt(Boolean(settings.autoPrintOnBill));
     setCompletedReceiptBill(newBill);
     setIsPaymentOpen(false);
     setIsCartOpen(false);
@@ -341,6 +356,8 @@ export default function App() {
     storage.saveSettings(updated);
   };
 
+  const lowStockCount = inventoryItems.filter((it) => it.currentStock <= it.minStock).length;
+
   return (
     <div className="min-h-dvh bg-white text-black flex flex-col font-serif antialiased">
       {/* 1. Header (Desktop & Mobile Top App Bar) */}
@@ -351,6 +368,7 @@ export default function App() {
         isUnlocked={isUnlocked}
         onLock={handleLock}
         cartCount={totalItemCount}
+        lowStockCount={lowStockCount}
         onToggleTheme={handleToggleTheme}
       />
 
@@ -454,11 +472,27 @@ export default function App() {
           <div className="flex-1 min-w-0">
             <OrderHistory
               bills={bills}
-              onReprintBill={(bill) => setCompletedReceiptBill(bill)}
+              onReprintBill={(bill) => {
+                setShouldAutoPrintReceipt(false);
+                setCompletedReceiptBill(bill);
+              }}
               onCancelBill={handleCancelBill}
               settings={settings}
               soundEnabled={settings.soundEnabled}
               onNewOrder={() => setActiveTab('billing')}
+            />
+          </div>
+        )}
+
+        {/* ================= INVENTORY SCREEN ================= */}
+        {activeTab === 'inventory' && (
+          <div className="flex-1 min-w-0">
+            <InventoryView
+              items={inventoryItems}
+              setItems={setInventoryItems}
+              logs={inventoryLogs}
+              setLogs={setInventoryLogs}
+              soundEnabled={settings.soundEnabled}
             />
           </div>
         )}
@@ -494,6 +528,8 @@ export default function App() {
                 setItems(storage.getMenuItems());
                 setSettings(storage.getSettings());
                 setBills(storage.getBills());
+                setInventoryItems(storage.getInventoryItems());
+                setInventoryLogs(storage.getInventoryLogs());
               }}
               soundEnabled={settings.soundEnabled}
             />
@@ -515,6 +551,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={handleRequestTab}
         cartCount={totalItemCount}
+        lowStockCount={lowStockCount}
       />
 
       {/* 5. Mobile Slide-up Cart Drawer */}
@@ -580,15 +617,25 @@ export default function App() {
       <ReceiptModal
         bill={completedReceiptBill}
         isOpen={!!completedReceiptBill}
-        onClose={() => setCompletedReceiptBill(null)}
+        onClose={() => {
+          setCompletedReceiptBill(null);
+          setShouldAutoPrintReceipt(false);
+        }}
         settings={settings}
+        autoPrintOnOpen={shouldAutoPrintReceipt}
         soundEnabled={settings.soundEnabled}
       />
 
       {/* 9. Security PIN Modal */}
       <PinModal
         isOpen={!!pendingTabForPin}
-        targetTitle={pendingTabForPin === 'admin' ? 'Menu Admin' : 'Reports'}
+        targetTitle={
+          pendingTabForPin === 'admin'
+            ? 'Menu Admin'
+            : pendingTabForPin === 'inventory'
+            ? 'Inventory'
+            : 'Reports'
+        }
         correctPin={settings.securityPin || '1234'}
         onSuccess={handlePinSuccess}
         onClose={() => setPendingTabForPin(null)}

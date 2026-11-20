@@ -120,6 +120,8 @@ export interface AppSettings {
   defaultFlavourSurcharge: number;
   soundEnabled: boolean;
   twoColorTheme?: 'bw' | 'red';
+  printerMode?: 'rawbt' | 'bluetooth' | 'system';
+  autoPrintOnBill?: boolean;
 }
 
 export interface CashDenominationCount {
@@ -144,4 +146,49 @@ export interface DrawerClosing {
   closedAt: string;
 }
 
-export type ActiveTab = 'billing' | 'orders' | 'reports' | 'admin' | 'settings';
+export type InventoryCategory =
+  | 'Packaging'
+  | 'Tissue & Hygiene'
+  | 'Cleaning Supplies'
+  | 'Fuel & Kitchen'
+  | 'Fuel & Generator'
+  | 'Other';
+
+export type InventoryUnit =
+  | 'pcs'
+  | 'packs'
+  | 'kg'
+  | 'litres'
+  | 'bottles'
+  | 'boxes'
+  | 'rolls';
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  category: InventoryCategory;
+  unit: InventoryUnit;
+  currentStock: number;
+  minStock: number;
+  costPerUnit?: number;
+  supplier?: string;
+  notes?: string;
+  lastRestockedDate?: string; // YYYY-MM-DD
+  updatedAt: string;
+}
+
+export interface InventoryLogEntry {
+  id: string;
+  itemId: string;
+  itemName: string;
+  unit: InventoryUnit;
+  type: 'in' | 'out' | 'adjust';
+  quantity: number;
+  previousStock: number;
+  newStock: number;
+  cost?: number;
+  note?: string;
+  timestamp: number;
+}
+
+export type ActiveTab = 'billing' | 'orders' | 'inventory' | 'reports' | 'admin' | 'settings';

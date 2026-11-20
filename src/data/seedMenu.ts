@@ -397,8 +397,8 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   businessName: 'The BBQ Boxx',
   tagline: 'Premium Flavours in Every Bite',
   isHalal: true,
-  address: 'Street Food Lane, Stall #04, Near City Clock Tower',
-  phone: '+91 98450 12345',
+  address: 'Anthonyar Kovil St, Opp to Mall Road',
+  phone: '8428306386',
   gstin: '',
   defaultGstEnabled: false,
   defaultGstRate: 5,
@@ -413,4 +413,6 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   defaultFlavourSurcharge: 10,
   soundEnabled: true,
   twoColorTheme: 'red',
+  printerMode: 'rawbt',
+  autoPrintOnBill: false,
 };

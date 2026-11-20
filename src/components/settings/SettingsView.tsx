@@ -7,12 +7,19 @@ import {
   Database,
   Upload,
   Download,
-  Globe,
   AlertTriangle,
   Check,
+  Bluetooth,
+  Printer,
 } from 'lucide-react';
 import { storage } from '../../utils/storage';
 import { sound } from '../../utils/sound';
+import {
+  connectBlePrinter,
+  disconnectBlePrinter,
+  getConnectedBlePrinterName,
+  sendTestPrint,
+} from '../../utils/thermalPrint';
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -28,9 +35,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   soundEnabled = true,
 }) => {
   const [formData, setFormData] = useState<AppSettings>(settings);
-  const [activeTab, setActiveTab] = useState<'stall' | 'payment' | 'pin' | 'backup' | 'deploy'>('stall');
+  const [activeTab, setActiveTab] = useState<'stall' | 'payment' | 'pin' | 'backup'>('stall');
   const [saveToast, setSaveToast] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState<boolean>(false);
+  const [blePrinterName, setBlePrinterName] = useState<string | null>(() => getConnectedBlePrinterName());
+  const [printerFeedback, setPrinterFeedback] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setSaveToast(msg);
@@ -115,7 +124,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           { id: 'payment' as const, label: 'UPI & Taxes', icon: QrCode },
           { id: 'pin' as const, label: 'Security PIN', icon: Lock },
           { id: 'backup' as const, label: 'Backup & Restore', icon: Database },
-          { id: 'deploy' as const, label: 'Deployment Guide', icon: Globe },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -264,6 +272,108 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Black &amp; White
               </button>
             </div>
+          </div>
+
+          {/* 58mm Bluetooth Mobile Thermal Printer Configuration */}
+          <div className="pt-4 border-t border-black/20 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="font-bold uppercase text-black flex items-center gap-1.5">
+                  <Bluetooth className="w-4 h-4 text-red-600" />
+                  <span>58mm Bluetooth Mobile Printer</span>
+                </h3>
+                <p className="text-[11px] text-black/70 mt-0.5">
+                  Built for portable 58mm thermal printers (Posiflow / MTP-2 / PT-210).
+                </p>
+              </div>
+              {blePrinterName && (
+                <span className="px-2 py-1 bg-black text-white text-[10px] font-bold uppercase">
+                  Connected: {blePrinterName}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="font-bold block mb-1 uppercase text-black">Preferred Print Method</label>
+                <select
+                  value={formData.printerMode || 'rawbt'}
+                  onChange={(e) =>
+                    handleChange('printerMode', e.target.value as 'rawbt' | 'bluetooth' | 'system')
+                  }
+                  className="w-full min-w-0 bg-white border border-black px-3 py-2.5 text-black focus:outline-none focus:border-red-600 min-h-[44px]"
+                >
+                  <option value="rawbt">Android RawBT (Recommended for 58mm BT)</option>
+                  <option value="bluetooth">Direct Bluetooth (Chrome BLE)</option>
+                  <option value="system">System Print / PDF</option>
+                </select>
+              </div>
+
+              <div className="flex items-end">
+                <label className="w-full flex items-center gap-2 p-2.5 bg-white border border-black cursor-pointer min-h-[44px]">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(formData.autoPrintOnBill)}
+                    onChange={(e) => handleChange('autoPrintOnBill', e.target.checked)}
+                    className="accent-red-600 w-4 h-4 shrink-0"
+                  />
+                  <span className="font-bold text-black text-xs">
+                    Auto-Print straight on Cash / UPI checkout
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  sound.playTap(formData.soundEnabled);
+                  const res = await connectBlePrinter();
+                  setBlePrinterName(getConnectedBlePrinterName());
+                  setPrinterFeedback(res.message);
+                }}
+                className="px-3 py-2 bg-white hover:bg-black hover:text-white text-black border border-black font-bold text-xs flex items-center gap-1.5 min-h-[40px]"
+              >
+                <Bluetooth className="w-3.5 h-3.5" />
+                <span>{blePrinterName ? 'Switch BLE Printer' : 'Pair Direct Bluetooth (BLE)'}</span>
+              </button>
+
+              {blePrinterName && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    disconnectBlePrinter();
+                    setBlePrinterName(null);
+                    setPrinterFeedback('Disconnected BLE printer.');
+                  }}
+                  className="px-3 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-600 font-bold text-xs min-h-[40px]"
+                >
+                  Disconnect
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={async () => {
+                  sound.playTap(formData.soundEnabled);
+                  const mode = formData.printerMode === 'bluetooth' ? 'bluetooth' : 'rawbt';
+                  const res = await sendTestPrint(formData, mode);
+                  setBlePrinterName(getConnectedBlePrinterName());
+                  setPrinterFeedback(res.message);
+                }}
+                className="px-3 py-2 bg-black hover:bg-black/90 text-white border border-black font-bold text-xs flex items-center gap-1.5 min-h-[40px]"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print 58mm Test Bill</span>
+              </button>
+            </div>
+
+            {printerFeedback && (
+              <div className="p-2.5 bg-white border border-black text-[11px] font-bold text-black">
+                {printerFeedback}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
@@ -484,50 +594,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       )}
 
-      {/* TAB 5: DEPLOYMENT GUIDE */}
-      {activeTab === 'deploy' && (
-        <div className="p-4 sm:p-6 bg-white border border-black space-y-4 text-xs max-w-2xl leading-relaxed">
-          <div>
-            <h3 className="text-base font-bold uppercase text-black">How to Deploy to Vercel / Netlify</h3>
-            <p className="text-black/70 mt-1">
-              Because "The BBQ Boxx" POS is built as a pure client-side PWA with localStorage persistence, it deploys in 30 seconds for free on any hosting platform.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="p-4 border border-black bg-white">
-              <h4 className="font-bold mb-1.5 text-sm uppercase text-black">Deploying to Vercel</h4>
-              <ol className="list-decimal list-inside space-y-1.5 text-black/80 pl-1">
-                <li>Push this repository to your GitHub account.</li>
-                <li>Go to <strong>vercel.com</strong> &rarr; Click <strong>"Add New Project"</strong>.</li>
-                <li>Select the repository.</li>
-                <li>Framework Preset: <strong>Vite</strong>.</li>
-                <li>Build Command: <strong>npm run build</strong>.</li>
-                <li>Output Directory: <strong>dist</strong>.</li>
-                <li>Click <strong>Deploy</strong>. That&apos;s it!</li>
-              </ol>
-            </div>
-
-            <div className="p-4 border border-black bg-white">
-              <h4 className="font-bold mb-1.5 text-sm uppercase text-black">Deploying to Netlify</h4>
-              <ol className="list-decimal list-inside space-y-1.5 text-black/80 pl-1">
-                <li>Log in to <strong>netlify.com</strong> &rarr; Click <strong>"Add new site"</strong> &rarr; <strong>"Import an existing project"</strong>.</li>
-                <li>Authorize GitHub and pick this repository.</li>
-                <li>Build command: <strong>npm run build</strong>.</li>
-                <li>Publish directory: <strong>dist</strong>.</li>
-                <li>Click <strong>Deploy site</strong>.</li>
-              </ol>
-            </div>
-
-            <div className="p-4 border border-black bg-white">
-              <h4 className="font-bold mb-1 text-sm uppercase text-black">Offline PWA Installation</h4>
-              <p className="text-black/80 text-xs">
-                Once deployed with HTTPS, open the URL on your counter Android or iPhone. Tap <strong>"Install App"</strong> in the top header or browser menu. The app installs as a standalone native app icon and continues working even during internet dropouts at the food stall!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

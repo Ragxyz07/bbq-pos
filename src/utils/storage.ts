@@ -1,5 +1,6 @@
-import { Category, MenuItem, AppSettings, Bill, DrawerClosing, CartItem } from '../types';
+import { Category, MenuItem, AppSettings, Bill, DrawerClosing, CartItem, InventoryItem, InventoryLogEntry } from '../types';
 import { SEED_CATEGORIES, SEED_MENU_ITEMS, DEFAULT_APP_SETTINGS } from '../data/seedMenu';
+import { SEED_INVENTORY_ITEMS } from '../data/seedInventory';
 
 const STORAGE_KEYS = {
   CATEGORIES: 'bbq_pos_categories_v1',
@@ -11,6 +12,9 @@ const STORAGE_KEYS = {
   TOKEN_TRACKER: 'bbq_pos_token_tracker_v1',
   SAVED_CART: 'bbq_pos_saved_cart_v1',
   MIGRATED_MEALBOX: 'bbq_pos_migrated_mealbox_v1',
+  INVENTORY_ITEMS: 'bbq_pos_inventory_items_v1',
+  INVENTORY_LOGS: 'bbq_pos_inventory_logs_v1',
+  MIGRATED_NOTEBOOK_INVENTORY: 'bbq_pos_migrated_notebook_inv_v1',
 };
 
 // Safe JSON parser
@@ -116,12 +120,24 @@ export const storage = {
       return DEFAULT_APP_SETTINGS;
     }
     const merged = { ...DEFAULT_APP_SETTINGS, ...data };
+    let changed = false;
     if (!merged.twoColorTheme) {
       merged.twoColorTheme = 'red';
-      safeSet(STORAGE_KEYS.SETTINGS, merged);
+      changed = true;
     }
     if (merged.defaultFlavourSurcharge === 20) {
       merged.defaultFlavourSurcharge = 10;
+      changed = true;
+    }
+    if (merged.address === 'Street Food Lane, Stall #04, Near City Clock Tower') {
+      merged.address = DEFAULT_APP_SETTINGS.address;
+      changed = true;
+    }
+    if (merged.phone === '+91 98450 12345') {
+      merged.phone = DEFAULT_APP_SETTINGS.phone;
+      changed = true;
+    }
+    if (changed) {
       safeSet(STORAGE_KEYS.SETTINGS, merged);
     }
     return merged;
@@ -207,11 +223,83 @@ export const storage = {
     safeSet(STORAGE_KEYS.SAVED_CART, cart);
   },
 
+  // Inventory Management Storage
+  getInventoryItems(): InventoryItem[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.INVENTORY_ITEMS);
+      if (raw === null) {
+        safeSet(STORAGE_KEYS.INVENTORY_ITEMS, SEED_INVENTORY_ITEMS);
+        localStorage.setItem(STORAGE_KEYS.MIGRATED_NOTEBOOK_INVENTORY, '1');
+        return SEED_INVENTORY_ITEMS;
+      }
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return SEED_INVENTORY_ITEMS;
+
+      // One-time upgrade from generic defaults to the stall's exact list (preserving any custom user items)
+      if (!localStorage.getItem(STORAGE_KEYS.MIGRATED_NOTEBOOK_INVENTORY)) {
+        const oldSeedIds = new Set([
+          'inv-paper-plates',
+          'inv-parcel-boxes',
+          'inv-chutney-cups',
+          'inv-foil-rolls',
+          'inv-carry-bags',
+          'inv-wooden-skewers',
+          'inv-thermal-rolls',
+          'inv-tissue-packs',
+          'inv-gloves',
+          'inv-dishwash',
+          'inv-surface-cleaner',
+          'inv-scrubbers',
+          'inv-garbage-bags',
+          'inv-charcoal',
+          'inv-cooking-oil',
+        ]);
+        const customUserItems = (parsed as InventoryItem[]).filter(
+          (it) => !oldSeedIds.has(it.id)
+        );
+        const merged = [...customUserItems, ...SEED_INVENTORY_ITEMS];
+        safeSet(STORAGE_KEYS.INVENTORY_ITEMS, merged);
+        localStorage.setItem(STORAGE_KEYS.MIGRATED_NOTEBOOK_INVENTORY, '1');
+        return merged;
+      }
+
+      return parsed;
+    } catch (err) {
+      console.error('Error reading inventory items from localStorage:', err);
+      return SEED_INVENTORY_ITEMS;
+    }
+  },
+
+  saveInventoryItems(items: InventoryItem[]): void {
+    safeSet(STORAGE_KEYS.INVENTORY_ITEMS, items);
+  },
+
+  getInventoryLogs(): InventoryLogEntry[] {
+    return safeGet<InventoryLogEntry[]>(STORAGE_KEYS.INVENTORY_LOGS, []);
+  },
+
+  saveInventoryLogs(logs: InventoryLogEntry[]): void {
+    safeSet(STORAGE_KEYS.INVENTORY_LOGS, logs);
+  },
+
+  addInventoryLog(log: InventoryLogEntry): InventoryLogEntry[] {
+    const logs = this.getInventoryLogs();
+    const updated = [log, ...logs].slice(0, 500);
+    this.saveInventoryLogs(updated);
+    return updated;
+  },
+
+  resetInventoryToDefault(): { items: InventoryItem[]; logs: InventoryLogEntry[] } {
+    safeSet(STORAGE_KEYS.INVENTORY_ITEMS, SEED_INVENTORY_ITEMS);
+    safeSet(STORAGE_KEYS.INVENTORY_LOGS, []);
+    return { items: SEED_INVENTORY_ITEMS, logs: [] };
+  },
+
   // Export full JSON database for backup
   exportAllDataJson(): string {
     const payload = {
       app: 'The BBQ Boxx POS',
-      version: '1.0.0',
+      version: '1.1.0',
       exportedAt: new Date().toISOString(),
       categories: this.getCategories(),
       menuItems: this.getMenuItems(),
@@ -219,6 +307,8 @@ export const storage = {
       bills: this.getBills(),
       drawerClosings: this.getDrawerClosings(),
       lastBillNumber: safeGet<number>(STORAGE_KEYS.LAST_BILL_NUMBER, 1000),
+      inventoryItems: this.getInventoryItems(),
+      inventoryLogs: this.getInventoryLogs(),
     };
     return JSON.stringify(payload, null, 2);
   },
@@ -236,6 +326,8 @@ export const storage = {
       if (data.bills) safeSet(STORAGE_KEYS.BILLS, data.bills);
       if (data.drawerClosings) safeSet(STORAGE_KEYS.DRAWER_CLOSINGS, data.drawerClosings);
       if (data.lastBillNumber) safeSet(STORAGE_KEYS.LAST_BILL_NUMBER, data.lastBillNumber);
+      if (Array.isArray(data.inventoryItems)) safeSet(STORAGE_KEYS.INVENTORY_ITEMS, data.inventoryItems);
+      if (Array.isArray(data.inventoryLogs)) safeSet(STORAGE_KEYS.INVENTORY_LOGS, data.inventoryLogs);
       return true;
     } catch (e) {
       console.error('Failed to restore backup:', e);

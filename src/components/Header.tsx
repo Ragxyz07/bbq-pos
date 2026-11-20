@@ -10,6 +10,7 @@ interface HeaderProps {
   isUnlocked: boolean;
   onLock: () => void;
   cartCount: number;
+  lowStockCount?: number;
   onToggleTheme?: () => void;
 }
 
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   isUnlocked,
   onLock,
   cartCount,
+  lowStockCount = 0,
 }) => {
   const isOnline = useOnlineStatus();
   const { isInstallable, install, isIOS } = usePWAInstall();
@@ -78,6 +80,11 @@ export const Header: React.FC<HeaderProps> = ({
             {[
               { id: 'billing' as ActiveTab, label: `Billing${cartCount > 0 ? ` (${cartCount})` : ''}` },
               { id: 'orders' as ActiveTab, label: 'Orders' },
+              {
+                id: 'inventory' as ActiveTab,
+                label: 'Inventory',
+                alertCount: lowStockCount > 0 ? lowStockCount : undefined,
+              },
               { id: 'reports' as ActiveTab, label: 'Reports' },
               { id: 'admin' as ActiveTab, label: 'Menu Admin' },
               { id: 'settings' as ActiveTab, label: 'Settings' },
@@ -87,13 +94,24 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-3.5 py-1.5 text-xs font-bold border transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold border transition-all whitespace-nowrap ${
                     isActive
                       ? 'bg-red-600 text-white border-red-600 shadow-sm'
                       : 'bg-white text-black border-black hover:bg-black/5'
                   }`}
                 >
-                  {tab.label}
+                  <span>{tab.label}</span>
+                  {tab.alertCount !== undefined && (
+                    <span
+                      className={`px-1.5 py-0.2 text-[10px] font-bold leading-tight border ${
+                        isActive
+                          ? 'bg-white text-red-600 border-white'
+                          : 'bg-red-600 text-white border-red-600'
+                      }`}
+                    >
+                      {tab.alertCount}
+                    </span>
+                  )}
                 </button>
               );
             })}
