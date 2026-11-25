@@ -6,11 +6,7 @@ import {
   Plus,
   Minus,
   Tag,
-  Percent,
-  Receipt,
-  RotateCcw,
   MessageSquare,
-  Sparkles,
   ShoppingBag,
   Banknote,
   QrCode,
@@ -65,7 +61,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   gstEnabled,
   setGstEnabled,
   gstRate,
-  settings,
+  settings: _settings,
   paymentMethod,
   setPaymentMethod,
   onProceedToPayment,
@@ -76,7 +72,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [noteText, setNoteText] = useState<string>('');
   const [showDiscountSheet, setShowDiscountSheet] = useState<boolean>(false);
 
-  // Totals Calculation
   const subtotal = cart.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
   const totalItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -96,13 +91,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const content = (
     <div className={`flex flex-col ${isDesktopSidebar ? 'h-full' : 'flex-1 min-h-0'} bg-white text-black select-none`}>
       {/* Drawer Header */}
-      <div className="px-3.5 sm:px-4 py-2.5 border-b border-black flex items-center justify-between shrink-0 bg-white">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 border border-black bg-white flex items-center justify-center text-black">
+      <div className="px-3.5 sm:px-4 py-2.5 border-b border-black flex items-center justify-between shrink-0 bg-white gap-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-8 h-8 border border-black bg-white flex items-center justify-center text-black shrink-0">
             <ShoppingBag className="w-4 h-4" />
           </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-bold tracking-wide text-black">
+          <div className="min-w-0">
+            <h3 className="text-sm sm:text-base font-bold tracking-wide text-black truncate">
               Current Bill
             </h3>
             <span className="text-[11px] text-black/70">
@@ -111,7 +106,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           {cart.length > 0 && (
             <button
               type="button"
@@ -121,7 +116,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   onClearCart();
                 }
               }}
-              className="px-2.5 py-1 text-[11px] font-bold text-black border border-black hover:bg-black hover:text-white transition-colors"
+              className="px-2 py-1 text-[11px] font-bold text-black border border-black hover:bg-black hover:text-white transition-colors"
             >
               Clear
             </button>
@@ -143,14 +138,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       <div className="flex-1 min-h-0 overflow-y-auto touch-scroll">
         {/* Order Controls (Order Type & Table/Token) */}
         <div className="p-2.5 sm:p-3.5 bg-white border-b border-black/30 space-y-2">
-          {/* Order Type Segmented Control (Only Dine-in and Parcel) */}
           <div className="grid grid-cols-2 gap-1 p-1 bg-white border border-black">
             {(['dine-in', 'parcel'] as OrderType[]).map((type) => {
               const isActive = orderType === type;
-              const labels: Record<OrderType, string> = {
-                'dine-in': 'Dine-in',
-                parcel: 'Parcel',
-              };
               return (
                 <button
                   key={type}
@@ -159,26 +149,25 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     sound.playTap(soundEnabled);
                     setOrderType(type);
                   }}
-                  className={`py-1.5 text-xs font-bold transition-colors ${
+                  className={`py-1.5 text-xs font-bold uppercase transition-colors ${
                     isActive
                       ? 'bg-red-600 text-white'
                       : 'bg-white text-black hover:bg-black/5'
                   }`}
                 >
-                  {labels[type]}
+                  {type === 'dine-in' ? 'Dine-In' : 'Parcel'}
                 </button>
               );
             })}
           </div>
 
-          {/* Table or Token Input */}
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <input
                 type="text"
                 value={tableOrToken}
                 onChange={(e) => setTableOrToken(e.target.value)}
-                placeholder="Table / Token # (e.g. Table 3, Token 5)"
+                placeholder="Table / Customer / Token # (e.g. Table 3)"
                 className="w-full bg-white border border-black px-3 py-1.5 text-xs text-black placeholder-black/40 focus:outline-none focus:border-red-600 font-bold"
               />
             </div>
@@ -201,7 +190,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               key={item.cartItemId}
               className="p-2.5 bg-white border border-black/40 flex flex-col gap-1.5"
             >
-              {/* Item Top Row */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -238,7 +226,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
               </div>
 
-              {/* Quantity Stepper & Actions Row */}
               <div className="flex items-center justify-between pt-1 border-t border-black/20">
                 <button
                   type="button"
@@ -291,7 +278,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
               </div>
 
-              {/* Editing note inline */}
               {editingNoteId === item.cartItemId && (
                 <div className="mt-1 flex items-center gap-1.5">
                   <input
@@ -327,12 +313,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         )}
         </div>
 
-        {/* Bill Summary & Payment Options (scrolls smoothly with items) */}
+        {/* Bill Summary & Payment Options */}
         {cart.length > 0 && (
           <div className="p-2.5 sm:p-3.5 bg-white border-t border-black space-y-2">
-          {/* Discount & GST Controls */}
           <div className="space-y-1.5">
-            {/* Quick Discount Trigger */}
             <div className="flex items-center justify-between text-xs">
               <button
                 type="button"
@@ -347,7 +331,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </span>
               </button>
 
-              {/* GST Toggle */}
               <label className="flex items-center gap-1.5 cursor-pointer text-black">
                 <input
                   type="checkbox"
@@ -359,7 +342,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </label>
             </div>
 
-            {/* Expandable Discount Panel */}
             {showDiscountSheet && (
               <div className="p-2.5 bg-white border border-black space-y-2 text-xs">
                 <div className="flex items-center justify-between">
@@ -411,7 +393,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   )}
                 </div>
 
-                {/* Quick Preset Buttons */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {discountType === 'flat' ? (
                     <>
@@ -445,7 +426,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             )}
           </div>
 
-          {/* Breakdown Rows */}
           <div className="space-y-1 text-xs pt-1.5 border-t border-black/30">
             <div className="flex items-center justify-between text-black/80 font-normal">
               <span>Subtotal</span>
@@ -479,15 +459,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <span className="text-[10px] uppercase font-bold text-black tracking-wider block">
               Method of Payment:
             </span>
-            <div className="grid grid-cols-3 gap-1.5 p-1 bg-white border border-black">
+            <div className="grid grid-cols-3 gap-1 p-1 bg-white border border-black">
               {[
                 { id: 'cash' as PaymentMethod, label: 'Cash', icon: Banknote },
-                { id: 'upi' as PaymentMethod, label: 'UPI QR', icon: QrCode },
+                { id: 'upi' as PaymentMethod, label: 'UPI', icon: QrCode },
                 { id: 'split' as PaymentMethod, label: 'Split', icon: Split },
               ].map((pm) => {
                 const Icon = pm.icon;
-                const activeMethod = paymentMethod === 'card' ? 'cash' : paymentMethod;
-                const isSelected = activeMethod === pm.id;
+                const isSelected = paymentMethod === pm.id;
                 return (
                   <button
                     key={pm.id}
@@ -496,13 +475,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       sound.playTap(soundEnabled);
                       setPaymentMethod(pm.id);
                     }}
-                    className={`py-1.5 px-1 flex items-center justify-center gap-1 text-[11px] font-bold transition-colors ${
+                    className={`py-1.5 px-1 flex items-center justify-center gap-1 text-xs font-bold transition-colors ${
                       isSelected
                         ? 'bg-red-600 text-white'
                         : 'bg-white text-black hover:bg-black/5'
                     }`}
                   >
-                    <Icon className="w-3 h-3" />
+                    <Icon className="w-3.5 h-3.5" />
                     <span>{pm.label}</span>
                   </button>
                 );
@@ -519,7 +498,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         <div className="p-2.5 sm:p-3 bg-white border-t border-black shrink-0">
           <button
             type="button"
-            onClick={() => onProceedToPayment(paymentMethod === 'card' ? 'cash' : paymentMethod)}
+            onClick={() => onProceedToPayment(paymentMethod)}
             className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white border border-red-600 font-bold text-sm flex items-center justify-between px-4 transition-colors min-h-[44px] shadow-sm"
           >
             <span>
@@ -527,7 +506,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 ? 'UPI • Print Bill'
                 : paymentMethod === 'split'
                 ? 'Split Payment'
-                : 'Cash • Print Bill'}
+                : 'Cash • Collect / Print'}
             </span>
             <span className="text-lg font-bold tabular-nums">
               {formatCurrency(finalTotal)}
@@ -538,7 +517,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     </div>
   );
 
-  // If desktop sidebar, render inline. If mobile, render as fitted modal inside screen.
   if (isDesktopSidebar) {
     return <aside className="w-80 lg:w-96 shrink-0 h-[calc(100vh-64px)] sticky top-16 border-l-2 border-black bg-white hidden lg:block overflow-hidden">{content}</aside>;
   }

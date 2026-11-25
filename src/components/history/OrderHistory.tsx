@@ -159,7 +159,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, order or etc"
+            placeholder="Search by bill #, token, item..."
             className="w-full bg-white border border-black/40 rounded-lg pl-10 pr-9 py-2.5 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all"
           />
           {searchQuery && (
@@ -173,20 +173,20 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
         </div>
 
         {/* Middle & Right: Filter Dropdown & + New Order button */}
-        <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial">
+        <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto">
+          <div className="relative">
             <select
               value={filterDropdown}
               onChange={(e) => setFilterDropdown(e.target.value)}
-              className="w-full sm:w-36 appearance-none bg-white border border-black/40 rounded-lg px-3 py-2.5 pr-8 text-xs font-bold text-black focus:outline-none focus:border-red-600 cursor-pointer"
+              className="appearance-none bg-white border border-black/40 rounded-lg px-3.5 py-2.5 pr-8 text-xs font-bold text-black focus:outline-none focus:border-red-600 cursor-pointer"
             >
-              <option value="all">All</option>
+              <option value="all">All Orders</option>
               <option value="completed">Completed</option>
               <option value="dine-in">Dine-in</option>
               <option value="parcel">Parcel</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black/60 text-xs">
+            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-black/60 text-[10px]">
               ▼
             </span>
           </div>
@@ -195,7 +195,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
             <button
               type="button"
               onClick={onNewOrder}
-              className="flex-1 sm:flex-initial px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white border border-red-600 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-[0.98]"
+              className="flex-1 sm:flex-initial px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white border border-red-600 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-[0.98]"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>New Order</span>
@@ -333,7 +333,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({
                           {orderTitle}
                         </h4>
                         <span className="text-xs text-black/60 block mt-0.5">
-                          Order #{bill.id}
+                          Order #{bill.id} • {bill.paymentMethod.toUpperCase()}
                         </span>
                       </div>
                     </div>

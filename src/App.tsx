@@ -12,10 +12,16 @@ import {
   PaymentMethod,
   InventoryItem,
   InventoryLogEntry,
+  ChickenItem,
+  ChickenLogEntry,
+  ChickenDeductionRule,
+  StaffMember,
+  StaffAttendanceRecord,
+  StaffPayoutRecord,
 } from './types';
 import { storage } from './utils/storage';
 import { sound } from './utils/sound';
-import { formatCurrency, getEffectiveFlavourSurcharge } from './utils/format';
+import { getEffectiveFlavourSurcharge } from './utils/format';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { PinModal } from './components/PinModal';
@@ -28,7 +34,9 @@ import { PaymentModal } from './components/billing/PaymentModal';
 import { ReceiptModal } from './components/receipt/ReceiptModal';
 import { OrderHistory } from './components/history/OrderHistory';
 import { InventoryView } from './components/inventory/InventoryView';
+import { ChickenInventoryView } from './components/inventory/ChickenInventoryView';
 import { ReportsView } from './components/reports/ReportsView';
+import { StaffView } from './components/staff/StaffView';
 import { MenuManager } from './components/admin/MenuManager';
 import { SettingsView } from './components/settings/SettingsView';
 import { Search, X, RotateCcw, Flame } from 'lucide-react';
@@ -45,6 +53,24 @@ export default function App() {
   const [inventoryLogs, setInventoryLogs] = useState<InventoryLogEntry[]>(() =>
     storage.getInventoryLogs()
   );
+  const [chickenItems, setChickenItems] = useState<ChickenItem[]>(() =>
+    storage.getChickenItems()
+  );
+  const [chickenLogs, setChickenLogs] = useState<ChickenLogEntry[]>(() =>
+    storage.getChickenLogs()
+  );
+  const [chickenRules, setChickenRules] = useState<ChickenDeductionRule[]>(() =>
+    storage.getChickenRules()
+  );
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(() =>
+    storage.getStaffMembers()
+  );
+  const [staffAttendance, setStaffAttendance] = useState<StaffAttendanceRecord[]>(() =>
+    storage.getStaffAttendance()
+  );
+  const [staffPayouts, setStaffPayouts] = useState<StaffPayoutRecord[]>(() =>
+    storage.getStaffPayouts()
+  );
 
   // Navigation & Security
   const [activeTab, setActiveTab] = useState<ActiveTab>('billing');
@@ -55,13 +81,9 @@ export default function App() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>(() => storage.getSavedCart());
-  const [orderType, setOrderType] = useState<OrderType>(
-    settings.defaultOrderType === 'parcel' ? 'parcel' : 'dine-in'
-  );
+  const [orderType, setOrderType] = useState<OrderType>(settings.defaultOrderType || 'dine-in');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    settings.defaultPaymentMethod && settings.defaultPaymentMethod !== 'card'
-      ? settings.defaultPaymentMethod
-      : 'cash'
+    settings.defaultPaymentMethod || 'cash'
   );
   const [tableOrToken, setTableOrToken] = useState<string>('');
   const [discountType, setDiscountType] = useState<'flat' | 'percent'>('flat');
@@ -86,10 +108,14 @@ export default function App() {
     storage.saveCart(cart);
   }, [cart]);
 
-  // Tab switching with PIN protection for Reports, Admin & Inventory
+  // Tab switching with PIN protection
   const handleRequestTab = (tab: ActiveTab) => {
     if (
-      (tab === 'reports' || tab === 'admin' || tab === 'inventory') &&
+      (tab === 'reports' ||
+        tab === 'staff' ||
+        tab === 'admin' ||
+        tab === 'inventory' ||
+        tab === 'chicken-inventory') &&
       settings.pinRequired &&
       !isUnlocked
     ) {
@@ -109,12 +135,18 @@ export default function App() {
 
   const handleLock = () => {
     setIsUnlocked(false);
-    if (activeTab === 'reports' || activeTab === 'admin' || activeTab === 'inventory') {
+    if (
+      activeTab === 'reports' ||
+      activeTab === 'staff' ||
+      activeTab === 'admin' ||
+      activeTab === 'inventory' ||
+      activeTab === 'chicken-inventory'
+    ) {
       setActiveTab('billing');
     }
   };
 
-  // Add Item to Cart (1-tap or custom variant/flavour)
+  // Add Item to Cart
   const handleAddToCart = ({
     item,
     variant,
@@ -165,7 +197,6 @@ export default function App() {
     });
   };
 
-  // Quick 1-tap add for simple items
   const handleQuickAdd = (item: MenuItem) => {
     handleAddToCart({
       item,
@@ -190,18 +221,10 @@ export default function App() {
     sound.playCancel(settings.soundEnabled);
     setCart((prev) => prev.filter((it) => it.cartItemId !== cartItemId));
 
-    // Show Undo Toast
     setUndoToast({
       item: itemToRemove,
       message: `Removed ${itemToRemove.name}`,
     });
-  };
-
-  const handleUndoRemove = () => {
-    if (!undoToast) return;
-    sound.playTap(settings.soundEnabled);
-    setCart((prev) => [...prev, undoToast.item]);
-    setUndoToast(null);
   };
 
   const handleClearCart = () => {
@@ -231,13 +254,15 @@ export default function App() {
   const gstAmount = gstEnabled ? Math.round((taxableAmount * settings.defaultGstRate) / 100) : 0;
   const finalTotal = taxableAmount + gstAmount;
 
-  // Complete Sale
+  // Complete Sale & auto-deduct chicken inventory
   const handleCompleteSale = (newBill: Bill) => {
-    // Save to storage
     const updatedBills = storage.addBill(newBill);
     setBills(updatedBills);
 
-    // Open Receipt & clear cart
+    const chickenRes = storage.deductChickenForBill(newBill);
+    setChickenItems(chickenRes.items);
+    setChickenLogs(chickenRes.logs);
+
     setShouldAutoPrintReceipt(Boolean(settings.autoPrintOnBill));
     setCompletedReceiptBill(newBill);
     setIsPaymentOpen(false);
@@ -245,17 +270,11 @@ export default function App() {
     handleClearCart();
   };
 
-  // Checkout directly to Receipt/Print for Cash & UPI; open PaymentModal for Split
+  // Direct Cash / UPI checkout vs PaymentModal for Split
   const handleProceedToCheckout = (chosen?: PaymentMethod) => {
     if (cart.length === 0) return;
 
-    const methodToUse: PaymentMethod =
-      chosen && chosen !== 'card'
-        ? chosen
-        : paymentMethod === 'card'
-        ? 'cash'
-        : paymentMethod;
-
+    const methodToUse: PaymentMethod = chosen || paymentMethod || 'cash';
     setPaymentMethod(methodToUse);
 
     if (methodToUse === 'cash' || methodToUse === 'upi') {
@@ -308,10 +327,17 @@ export default function App() {
     setIsPaymentOpen(true);
   };
 
-  // Cancel / Refund Bill
+  // Cancel / Void Bill & return chicken pcs back to Inventory
   const handleCancelBill = (billId: string, reason: string) => {
+    const targetBill = bills.find((b) => b.id === billId);
     const updated = storage.cancelBill(billId, reason);
     setBills(updated);
+
+    if (targetBill && targetBill.status === 'completed') {
+      const chickenRes = storage.returnChickenForVoidBill(targetBill);
+      setChickenItems(chickenRes.items);
+      setChickenLogs(chickenRes.logs);
+    }
   };
 
   // Category counts
@@ -336,13 +362,11 @@ export default function App() {
     return true;
   });
 
-  // Next bill ID preview
   const nextBillInfo = React.useMemo(() => {
     if (!isPaymentOpen) return { billId: 'BBQ-0', billNumber: 0, tokenNumber: 0 };
     return storage.getNextBillAndToken();
   }, [isPaymentOpen]);
 
-  // Current qty map in cart for badge on cards
   const cartQtyByItemId: Record<string, number> = {};
   cart.forEach((ci) => {
     cartQtyByItemId[ci.itemId] = (cartQtyByItemId[ci.itemId] || 0) + ci.quantity;
@@ -357,10 +381,11 @@ export default function App() {
   };
 
   const lowStockCount = inventoryItems.filter((it) => it.currentStock <= it.minStock).length;
+  const lowChickenCount = chickenItems.filter((it) => it.currentCount <= it.minCount).length;
 
   return (
     <div className="min-h-dvh bg-white text-black flex flex-col font-serif antialiased">
-      {/* 1. Header (Desktop & Mobile Top App Bar) */}
+      {/* 1. Header */}
       <Header
         activeTab={activeTab}
         setActiveTab={handleRequestTab}
@@ -369,6 +394,7 @@ export default function App() {
         onLock={handleLock}
         cartCount={totalItemCount}
         lowStockCount={lowStockCount}
+        lowChickenCount={lowChickenCount}
         onToggleTheme={handleToggleTheme}
       />
 
@@ -377,10 +403,8 @@ export default function App() {
         {/* ================= BILLING SCREEN ================= */}
         {activeTab === 'billing' && (
           <div className="flex-1 flex flex-col lg:flex-row min-w-0">
-            {/* Left Column: Menu Items & Categories */}
             <div className="flex-1 min-w-0 p-3 sm:p-5 lg:p-6 pb-36 lg:pb-8">
               <div className="max-w-4xl w-full mx-auto space-y-3">
-                {/* Search & Counter Search Header */}
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 text-black/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -388,7 +412,7 @@ export default function App() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Fast search items (e.g. wings, combo, peri peri)..."
+                      placeholder="Search BBQ items, combos, flavours..."
                       className="w-full bg-white border border-black pl-10 pr-9 py-2.5 text-xs text-black placeholder-black/50 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600"
                     />
                     {searchQuery && (
@@ -402,7 +426,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Horizontal Category Tabs */}
                 <CategoryTabs
                   categories={categories}
                   selectedCategoryId={selectedCategoryId}
@@ -410,7 +433,6 @@ export default function App() {
                   categoryItemCounts={categoryItemCounts}
                 />
 
-                {/* Items Grid */}
                 <div className="pt-1">
                   {displayedItems.length === 0 ? (
                     <div className="p-12 text-center bg-white border border-black">
@@ -437,7 +459,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Desktop Permanent Right Sidebar Cart */}
             <CartDrawer
               isOpen={true}
               onClose={() => setIsCartOpen(false)}
@@ -484,7 +505,23 @@ export default function App() {
           </div>
         )}
 
-        {/* ================= INVENTORY SCREEN ================= */}
+        {/* ================= CHICKEN INVENTORY SCREEN ================= */}
+        {activeTab === 'chicken-inventory' && (
+          <div className="flex-1 min-w-0">
+            <ChickenInventoryView
+              items={chickenItems}
+              setItems={setChickenItems}
+              logs={chickenLogs}
+              setLogs={setChickenLogs}
+              rules={chickenRules}
+              setRules={setChickenRules}
+              menuItems={items}
+              soundEnabled={settings.soundEnabled}
+            />
+          </div>
+        )}
+
+        {/* ================= STOCK SCREEN ================= */}
         {activeTab === 'inventory' && (
           <div className="flex-1 min-w-0">
             <InventoryView
@@ -500,7 +537,26 @@ export default function App() {
         {/* ================= REPORTS SCREEN ================= */}
         {activeTab === 'reports' && (
           <div className="flex-1 min-w-0">
-            <ReportsView bills={bills} settings={settings} soundEnabled={settings.soundEnabled} />
+            <ReportsView
+              bills={bills}
+              settings={settings}
+              soundEnabled={settings.soundEnabled}
+            />
+          </div>
+        )}
+
+        {/* ================= STAFF SCREEN ================= */}
+        {activeTab === 'staff' && (
+          <div className="flex-1 min-w-0">
+            <StaffView
+              staffMembers={staffMembers}
+              setStaffMembers={setStaffMembers}
+              attendanceRecords={staffAttendance}
+              setAttendanceRecords={setStaffAttendance}
+              payoutRecords={staffPayouts}
+              setPayoutRecords={setStaffPayouts}
+              soundEnabled={settings.soundEnabled}
+            />
           </div>
         )}
 
@@ -530,6 +586,12 @@ export default function App() {
                 setBills(storage.getBills());
                 setInventoryItems(storage.getInventoryItems());
                 setInventoryLogs(storage.getInventoryLogs());
+                setChickenItems(storage.getChickenItems());
+                setChickenLogs(storage.getChickenLogs());
+                setChickenRules(storage.getChickenRules());
+                setStaffMembers(storage.getStaffMembers());
+                setStaffAttendance(storage.getStaffAttendance());
+                setStaffPayouts(storage.getStaffPayouts());
               }}
               soundEnabled={settings.soundEnabled}
             />
@@ -537,7 +599,7 @@ export default function App() {
         )}
       </main>
 
-      {/* 3. Mobile Sticky Bottom Cart Summary Bar (When on billing tab and cart has items) */}
+      {/* 3. Mobile Sticky Bottom Cart Summary Bar */}
       {activeTab === 'billing' && (
         <CartBar
           itemCount={totalItemCount}
@@ -552,6 +614,7 @@ export default function App() {
         setActiveTab={handleRequestTab}
         cartCount={totalItemCount}
         lowStockCount={lowStockCount}
+        lowChickenCount={lowChickenCount}
       />
 
       {/* 5. Mobile Slide-up Cart Drawer */}
@@ -632,8 +695,12 @@ export default function App() {
         targetTitle={
           pendingTabForPin === 'admin'
             ? 'Menu Admin'
-            : pendingTabForPin === 'inventory'
+            : pendingTabForPin === 'staff'
+            ? 'Staff'
+            : pendingTabForPin === 'chicken-inventory'
             ? 'Inventory'
+            : pendingTabForPin === 'inventory'
+            ? 'Stock'
             : 'Reports'
         }
         correctPin={settings.securityPin || '1234'}
@@ -642,13 +709,17 @@ export default function App() {
         soundEnabled={settings.soundEnabled}
       />
 
-      {/* 10. Undo Toast for Deleted Cart Item */}
+      {/* 10. Undo Toast */}
       {undoToast && (
         <div className="fixed bottom-32 md:bottom-6 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 bg-white border-2 border-black text-black px-3.5 py-2.5 shadow-2xl flex items-center justify-between sm:justify-start gap-3 max-w-md mx-auto">
           <span className="text-xs font-bold uppercase truncate">{undoToast.message}</span>
           <button
             type="button"
-            onClick={handleUndoRemove}
+            onClick={() => {
+              sound.playTap(settings.soundEnabled);
+              setCart((prev) => [...prev, undoToast.item]);
+              setUndoToast(null);
+            }}
             className="flex items-center gap-1 px-2.5 py-1 bg-red-600 text-white hover:bg-red-700 text-xs font-bold border border-red-600 transition-colors uppercase"
           >
             <RotateCcw className="w-3.5 h-3.5" />

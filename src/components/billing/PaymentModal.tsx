@@ -88,7 +88,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   }, [isOpen, totalAmount, initialMethod, settings.defaultPaymentMethod]);
 
-  // Generate UPI QR code whenever on UPI tab or Split has UPI
   useEffect(() => {
     if (!isOpen) return;
     const upiAmount = method === 'upi' ? totalAmount : split.upi;
@@ -115,11 +114,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Change Calculation for Cash
   const cashChange = Math.max(0, cashReceived - totalAmount);
   const isCashSufficient = cashReceived >= totalAmount;
 
-  // Split calculations (Cash + UPI)
   const splitTotal = split.cash + split.upi;
   const splitRemaining = totalAmount - splitTotal;
   const isSplitValid = splitTotal === totalAmount;
@@ -220,11 +217,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {/* Payment Method Selector */}
         <div className="p-2.5 bg-white border-b border-black/30 shrink-0">
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-2">
             {[
               { id: 'cash' as PaymentMethod, label: 'Cash', icon: Banknote },
               { id: 'upi' as PaymentMethod, label: 'UPI QR', icon: QrCode },
-              { id: 'split' as PaymentMethod, label: 'Split', icon: Split },
+              { id: 'split' as PaymentMethod, label: 'Split Pay', icon: Split },
             ].map((pm) => {
               const Icon = pm.icon;
               const isActive = method === pm.id;
@@ -274,7 +271,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               </div>
 
-              {/* Quick Denomination Chips */}
               <div>
                 <div className="text-[11px] font-bold text-black/80 uppercase tracking-wide mb-1.5">
                   Quick Denominations
@@ -306,7 +302,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               </div>
 
-              {/* Change Due Box */}
               <div className="p-4 border-2 border-black bg-white">
                 <div className="flex items-center justify-between">
                   <span className="text-xs uppercase font-bold tracking-wider text-black">
@@ -361,7 +356,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {method === 'split' && (
             <div className="space-y-3">
               <div className="p-3 bg-white border border-black space-y-3">
-                {/* Cash portion */}
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-bold text-black flex items-center gap-1.5">
                     <Banknote className="w-4 h-4" />
@@ -381,7 +375,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
                 </div>
 
-                {/* UPI portion */}
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-bold text-black flex items-center gap-1.5">
                     <QrCode className="w-4 h-4" />
@@ -402,7 +395,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               </div>
 
-              {/* Split Balance Checker */}
               <div className="p-3 border border-black bg-white flex items-center justify-between text-xs text-black">
                 <span>
                   {isSplitValid

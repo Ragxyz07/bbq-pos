@@ -515,7 +515,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border-2 border-black p-4">
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-black uppercase tracking-tight">
-            INVENTORY
+            STOCK
           </h2>
           <p className="text-xs text-black/70 mt-0.5">
             Track paper plates, tissues, cleaning supplies &amp; stall stock.
@@ -655,7 +655,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
       {/* 4. Clean Controls Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex border border-black bg-white">
             <button
               type="button"
@@ -967,7 +967,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                               : 'bg-white text-black border-black'
                           }`}
                         >
-                          {log.type === 'in' ? 'In' : log.type === 'out' ? 'Out' : 'Edit'}
+                          {log.type === 'in' ? 'IN' : log.type === 'out' ? 'OUT' : 'EDIT'}
                         </span>
                       </td>
                       <td className="p-3 text-right font-bold tabular-nums whitespace-nowrap">
@@ -1283,7 +1283,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   type="text"
                   value={moveNote}
                   onChange={(e) => setMoveNote(e.target.value)}
-                  placeholder={movementModal.mode === 'in' ? 'Restocked' : 'Daily usage'}
+                  placeholder={movementModal.mode === 'in' ? 'Restocked' : 'Wastage / spoilage note'}
                   className="w-full border border-black px-3 py-2 text-xs"
                 />
               </div>
@@ -1320,7 +1320,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               Delete {deletingItem.name}?
             </h3>
             <p className="text-xs text-black/80">
-              This will remove the item from your inventory list.
+              This will remove the item from your stock list.
             </p>
             <div className="flex items-center justify-end gap-2">
               <button

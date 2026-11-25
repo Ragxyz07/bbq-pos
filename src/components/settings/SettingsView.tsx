@@ -32,7 +32,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   settings,
   onUpdateSettings,
   onRestoreAllData,
-  soundEnabled = true,
+  soundEnabled: _soundEnabled = true,
 }) => {
   const [formData, setFormData] = useState<AppSettings>(settings);
   const [activeTab, setActiveTab] = useState<'stall' | 'payment' | 'pin' | 'backup'>('stall');
@@ -473,9 +473,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {activeTab === 'pin' && (
         <form onSubmit={handleSave} className="p-4 sm:p-6 bg-white border border-black space-y-4 text-xs max-w-md">
           <div>
-            <h3 className="text-base font-bold uppercase text-black">Admin &amp; Reports 4-Digit PIN</h3>
+            <h3 className="text-base font-bold uppercase text-black">Counter Security PIN</h3>
             <p className="text-xs text-black/70 mt-1">
-              Protect sales reports and menu pricing from unauthorized staff modification.
+              Lock Menu Admin and Reports behind a 4-digit PIN to prevent unauthorized price edits or viewing total daily cash.
             </p>
           </div>
 
@@ -501,9 +501,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 placeholder="1234"
                 className="w-full bg-white border border-black px-3 py-2.5 text-black text-center tracking-widest text-lg font-bold focus:outline-none focus:border-red-600"
               />
-              <span className="text-[11px] text-black/70 mt-1 block text-center">
-                Default PIN is <strong>1234</strong>
-              </span>
             </div>
           </div>
 
@@ -511,7 +508,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             type="submit"
             className="w-full py-3 bg-red-600 text-white hover:bg-red-700 font-bold text-xs border border-red-600 min-h-[44px] uppercase transition-colors"
           >
-            Save PIN Settings
+            Save Security Settings
           </button>
         </form>
       )}

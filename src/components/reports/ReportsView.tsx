@@ -162,6 +162,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
   // Top Items Map
   const itemMap: Record<string, { name: string; quantity: number; revenue: number }> = {};
+
   completedBills.forEach((b) => {
     b.items.forEach((it) => {
       const key = it.name;
@@ -436,7 +437,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-black hover:text-white border border-black text-xs font-bold transition-colors min-h-[38px]"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>CSV</span>
+            <span>Export CSV</span>
           </button>
 
           <button

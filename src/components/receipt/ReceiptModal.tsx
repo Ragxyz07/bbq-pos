@@ -107,7 +107,6 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
   return (
     <>
-      {/* Interactive Modal UI for the Counter */}
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 no-print select-none">
         <div className="w-full max-w-sm sm:max-w-md bg-white border-2 border-black shadow-2xl flex flex-col max-h-[86dvh] overflow-hidden text-black">
           {/* Header */}
@@ -161,7 +160,6 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </button>
             </div>
 
-            {/* Thermal Size selector */}
             {!isKot && (
               <div className="flex items-center gap-1 text-[11px] text-black">
                 <button
@@ -190,14 +188,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             )}
           </div>
 
-          {/* Paper Bill Preview (Scrollable without top clipping) */}
+          {/* Paper Bill Preview */}
           <div className="flex-1 min-h-0 overflow-y-auto touch-scroll p-3 sm:p-4 bg-black/10 border-b border-black/30 flex items-start justify-center">
             <div
               className={`bg-white text-black p-4 shadow-md border border-black leading-tight max-w-full ${
                 printerWidth === '58mm' ? 'w-[270px] text-[11px]' : 'w-[340px] text-xs'
               }`}
             >
-              {/* Receipt Content */}
               {!isKot ? (
                 <div>
                   <div className="text-center pb-2 border-b border-black border-dashed">
@@ -328,7 +325,6 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   </div>
                 </div>
               ) : (
-                /* KOT Content */
                 <div className="space-y-2">
                   <div className="text-center pb-2 border-b-2 border-black">
                     <div className="text-xl font-bold">*** KITCHEN TOKEN ***</div>
@@ -377,7 +373,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
           </div>
 
-          {/* Clean Action Footer: Just Print Bill, Save Picture, and Start Next Order */}
+          {/* Action Footer */}
           <div className="p-3 bg-white border-t-2 border-black space-y-2 shrink-0">
             {feedback && (
               <div className="p-2 border border-black bg-black text-white text-xs font-bold text-center">
@@ -385,7 +381,6 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </div>
             )}
 
-            {/* Primary CTA: Print Bill */}
             <button
               type="button"
               disabled={isPrinting}
@@ -398,7 +393,6 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </span>
             </button>
 
-            {/* Secondary Row: Save Picture & Start Next Order */}
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -407,7 +401,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 className="py-2 bg-white hover:bg-black hover:text-white active:scale-95 disabled:opacity-50 text-black font-bold text-xs flex items-center justify-center gap-1.5 border border-black transition-colors min-h-[40px]"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>{isGeneratingImage ? 'Saving...' : 'Save Picture'}</span>
+                <span>{isGeneratingImage ? 'Saving...' : 'Download Picture'}</span>
               </button>
 
               <button
@@ -422,7 +416,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         </div>
       </div>
 
-      {/* Hidden Thermal Printer DOM Element Portaled directly to body so #root can hide cleanly on print */}
+      {/* Hidden Thermal Printer DOM Element */}
       {createPortal(
         <div id="thermal-receipt-print-area" className={printerWidth === '58mm' ? 'receipt-58mm' : 'receipt-80mm'}>
         {!isKot ? (

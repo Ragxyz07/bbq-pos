@@ -6,7 +6,7 @@ export interface Category {
   id: string;
   name: string;
   sortOrder: number;
-  icon?: string; // Emoji or icon identifier
+  icon?: string;
 }
 
 export interface ItemVariant {
@@ -19,7 +19,7 @@ export interface ItemVariant {
 export interface FlavourAddon {
   id: string;
   name: string; // e.g. "Peri Peri", "Schezwan", "Garlic", "Honey"
-  surcharge: number; // default +₹20
+  surcharge: number; // default +₹10
   isDefault?: boolean;
 }
 
@@ -43,11 +43,11 @@ export interface MenuItem {
   isOutOfStock?: boolean;
   isHidden?: boolean;
   sortOrder: number;
-  badge?: string; // e.g. "Best Seller", "Halal", "Limited"
+  badge?: string;
 }
 
 export interface CartItem {
-  cartItemId: string; // unique ID per cart entry
+  cartItemId: string;
   itemId: string;
   name: string;
   variantId?: string;
@@ -56,7 +56,7 @@ export interface CartItem {
   flavourId?: string;
   flavourName?: string;
   flavourSurcharge: number;
-  unitPrice: number; // variantPrice + flavourSurcharge
+  unitPrice: number;
   quantity: number;
   notes?: string;
   isCombo?: boolean;
@@ -76,10 +76,10 @@ export interface PaymentSplit {
 
 export interface Bill {
   id: string; // e.g. "BBQ-1001"
-  billNumber: number; // incremental integer
-  tokenNumber: number; // daily running token e.g. 1, 2, 3...
-  timestamp: number; // epoch ms
-  createdAt: string; // formatted ISO string
+  billNumber: number;
+  tokenNumber: number;
+  timestamp: number;
+  createdAt: string;
   items: CartItem[];
   itemCount: number;
   subtotal: number;
@@ -87,7 +87,7 @@ export interface Bill {
   discountValue: number;
   discountAmount: number;
   gstEnabled: boolean;
-  gstRate: number; // e.g. 5
+  gstRate: number;
   gstAmount: number;
   totalAmount: number;
   orderType: OrderType;
@@ -97,7 +97,6 @@ export interface Bill {
   status: 'completed' | 'cancelled';
   cancelReason?: string;
   cancelledAt?: string;
-  cashierName?: string;
 }
 
 export interface AppSettings {
@@ -112,7 +111,7 @@ export interface AppSettings {
   upiId: string;
   upiName: string;
   receiptFooter: string;
-  securityPin: string; // 4-digit PIN for Admin and Reports
+  securityPin: string;
   pinRequired: boolean;
   thermalPrinterSize: '58mm' | '80mm';
   defaultOrderType: OrderType;
@@ -125,13 +124,13 @@ export interface AppSettings {
 }
 
 export interface CashDenominationCount {
-  [denomination: number]: number; // 500: count, 200: count, 100: count, etc.
+  [denomination: number]: number;
 }
 
 export interface DrawerClosing {
   id: string;
   timestamp: number;
-  dateStr: string; // YYYY-MM-DD
+  dateStr: string;
   openingCash: number;
   expectedCash: number;
   actualCash: number;
@@ -152,12 +151,19 @@ export type InventoryCategory =
   | 'Cleaning Supplies'
   | 'Fuel & Kitchen'
   | 'Fuel & Generator'
+  | 'Raw Meat'
+  | 'Seafood'
+  | 'Bakery'
+  | 'Beverage'
   | 'Other';
 
 export type InventoryUnit =
   | 'pcs'
   | 'packs'
   | 'kg'
+  | 'g'
+  | 'L'
+  | 'ml'
   | 'litres'
   | 'bottles'
   | 'boxes'
@@ -173,7 +179,7 @@ export interface InventoryItem {
   costPerUnit?: number;
   supplier?: string;
   notes?: string;
-  lastRestockedDate?: string; // YYYY-MM-DD
+  lastRestockedDate?: string;
   updatedAt: string;
 }
 
@@ -191,4 +197,91 @@ export interface InventoryLogEntry {
   timestamp: number;
 }
 
-export type ActiveTab = 'billing' | 'orders' | 'inventory' | 'reports' | 'admin' | 'settings';
+export type ChickenUnit = 'pcs' | 'stick';
+
+export interface ChickenItem {
+  id: string;
+  name: string;
+  unit: ChickenUnit;
+  currentCount: number;
+  minCount: number;
+  sortOrder: number;
+  lastCountedDate?: string;
+  updatedAt: string;
+}
+
+export interface ChickenDeductionComponent {
+  chickenItemId: string;
+  quantity: number;
+}
+
+export interface ChickenDeductionRule {
+  ruleKey: string;
+  label: string;
+  components: ChickenDeductionComponent[];
+}
+
+export interface ChickenLogEntry {
+  id: string;
+  chickenItemId: string;
+  itemName: string;
+  unit: ChickenUnit;
+  type: 'count_set' | 'in' | 'out' | 'sale' | 'void_return' | 'adjust';
+  quantity: number;
+  previousCount: number;
+  newCount: number;
+  billId?: string;
+  note?: string;
+  timestamp: number;
+}
+
+export type StaffSalaryType = 'daily' | 'monthly';
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  phone: string;
+  roleLabel?: string; // e.g. Grill Master, Helper, Counter (display only, no login)
+  salaryType: StaffSalaryType;
+  salaryAmount: number; // ₹ per day OR ₹ per month
+  joinedDate?: string;
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AttendanceStatus = 'present' | 'half' | 'absent';
+
+export interface StaffAttendanceRecord {
+  id: string;
+  staffId: string;
+  dateStr: string; // YYYY-MM-DD
+  status: AttendanceStatus;
+  note?: string;
+  updatedAt: string;
+}
+
+export type StaffPayoutType = 'advance' | 'salary' | 'bonus';
+
+export interface StaffPayoutRecord {
+  id: string;
+  staffId: string;
+  staffName: string;
+  type: StaffPayoutType;
+  amount: number;
+  dateStr: string; // YYYY-MM-DD
+  paymentMode: 'cash' | 'upi';
+  note?: string;
+  timestamp: number;
+}
+
+export type ActiveTab =
+  | 'billing'
+  | 'orders'
+  | 'chicken-inventory'
+  | 'inventory'
+  | 'reports'
+  | 'staff'
+  | 'admin'
+  | 'settings';

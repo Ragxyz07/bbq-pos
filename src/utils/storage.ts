@@ -1,6 +1,22 @@
-import { Category, MenuItem, AppSettings, Bill, DrawerClosing, CartItem, InventoryItem, InventoryLogEntry } from '../types';
+import {
+  Category,
+  MenuItem,
+  AppSettings,
+  Bill,
+  DrawerClosing,
+  CartItem,
+  InventoryItem,
+  InventoryLogEntry,
+  ChickenItem,
+  ChickenDeductionRule,
+  ChickenLogEntry,
+  StaffMember,
+  StaffAttendanceRecord,
+  StaffPayoutRecord,
+} from '../types';
 import { SEED_CATEGORIES, SEED_MENU_ITEMS, DEFAULT_APP_SETTINGS } from '../data/seedMenu';
 import { SEED_INVENTORY_ITEMS } from '../data/seedInventory';
+import { SEED_CHICKEN_ITEMS, SEED_CHICKEN_RULES } from '../data/seedChickenInventory';
 
 const STORAGE_KEYS = {
   CATEGORIES: 'bbq_pos_categories_v1',
@@ -15,6 +31,13 @@ const STORAGE_KEYS = {
   INVENTORY_ITEMS: 'bbq_pos_inventory_items_v1',
   INVENTORY_LOGS: 'bbq_pos_inventory_logs_v1',
   MIGRATED_NOTEBOOK_INVENTORY: 'bbq_pos_migrated_notebook_inv_v1',
+  CHICKEN_ITEMS: 'bbq_pos_chicken_items_v1',
+  CHICKEN_LOGS: 'bbq_pos_chicken_logs_v1',
+  CHICKEN_RULES: 'bbq_pos_chicken_rules_v1',
+  MIGRATED_CHICKEN_RULES_V2: 'bbq_pos_migrated_chicken_rules_v2',
+  STAFF_MEMBERS: 'bbq_pos_staff_members_v1',
+  STAFF_ATTENDANCE: 'bbq_pos_staff_attendance_v1',
+  STAFF_PAYOUTS: 'bbq_pos_staff_payouts_v1',
 };
 
 // Safe JSON parser
@@ -46,7 +69,6 @@ export const storage = {
       return SEED_CATEGORIES;
     }
 
-    // One-time migration to ensure Meal Box category is available for existing users
     const mealBoxCat = SEED_CATEGORIES.find((c) => c.id === 'cat-meal-box');
     if (mealBoxCat && !data.some((c) => c.id === 'cat-meal-box') && !localStorage.getItem(STORAGE_KEYS.MIGRATED_MEALBOX)) {
       const updatedCats = [...data, mealBoxCat];
@@ -68,7 +90,6 @@ export const storage = {
       localStorage.setItem(STORAGE_KEYS.MIGRATED_MEALBOX, '1');
       return SEED_MENU_ITEMS;
     }
-    // Auto-migrate any previously saved 20 surcharge flavours to 10
     let hasMigration = false;
     let migrated = data.map((item) => {
       if (item.hasFlavours && item.flavours) {
@@ -84,7 +105,6 @@ export const storage = {
       return item;
     });
 
-    // One-time migration to append Meal Box items for existing users
     if (!localStorage.getItem(STORAGE_KEYS.MIGRATED_MEALBOX)) {
       const mealBoxItems = SEED_MENU_ITEMS.filter((it) => it.categoryId === 'cat-meal-box');
       const existingIds = new Set(migrated.map((it) => it.id));
@@ -179,12 +199,10 @@ export const storage = {
   },
 
   getNextBillAndToken(): { billId: string; billNumber: number; tokenNumber: number } {
-    // Increment bill counter
     const lastBillNo = safeGet<number>(STORAGE_KEYS.LAST_BILL_NUMBER, 1000);
     const nextBillNo = lastBillNo + 1;
     safeSet(STORAGE_KEYS.LAST_BILL_NUMBER, nextBillNo);
 
-    // Increment daily token
     const todayStr = new Date().toISOString().split('T')[0];
     const tracker = safeGet<{ date: string; token: number }>(STORAGE_KEYS.TOKEN_TRACKER, {
       date: todayStr,
@@ -235,7 +253,6 @@ export const storage = {
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return SEED_INVENTORY_ITEMS;
 
-      // One-time upgrade from generic defaults to the stall's exact list (preserving any custom user items)
       if (!localStorage.getItem(STORAGE_KEYS.MIGRATED_NOTEBOOK_INVENTORY)) {
         const oldSeedIds = new Set([
           'inv-paper-plates',
@@ -295,11 +312,210 @@ export const storage = {
     return { items: SEED_INVENTORY_ITEMS, logs: [] };
   },
 
+  // Chicken Inventory Management Storage (Wings, Lollipop, Chest, Drumstick, Thigh, Boneless Stick)
+  getChickenItems(): ChickenItem[] {
+    const data = safeGet<ChickenItem[] | null>(STORAGE_KEYS.CHICKEN_ITEMS, null);
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      safeSet(STORAGE_KEYS.CHICKEN_ITEMS, SEED_CHICKEN_ITEMS);
+      return SEED_CHICKEN_ITEMS;
+    }
+    return [...data].sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
+  },
+
+  saveChickenItems(items: ChickenItem[]): void {
+    safeSet(STORAGE_KEYS.CHICKEN_ITEMS, items);
+  },
+
+  getChickenLogs(): ChickenLogEntry[] {
+    return safeGet<ChickenLogEntry[]>(STORAGE_KEYS.CHICKEN_LOGS, []);
+  },
+
+  saveChickenLogs(logs: ChickenLogEntry[]): void {
+    safeSet(STORAGE_KEYS.CHICKEN_LOGS, logs);
+  },
+
+  addChickenLog(log: ChickenLogEntry): ChickenLogEntry[] {
+    const logs = this.getChickenLogs();
+    const updated = [log, ...logs].slice(0, 800);
+    this.saveChickenLogs(updated);
+    return updated;
+  },
+
+  getChickenRules(): ChickenDeductionRule[] {
+    if (!localStorage.getItem(STORAGE_KEYS.MIGRATED_CHICKEN_RULES_V2)) {
+      safeSet(STORAGE_KEYS.CHICKEN_RULES, SEED_CHICKEN_RULES);
+      localStorage.setItem(STORAGE_KEYS.MIGRATED_CHICKEN_RULES_V2, '1');
+      return SEED_CHICKEN_RULES;
+    }
+    const data = safeGet<ChickenDeductionRule[] | null>(STORAGE_KEYS.CHICKEN_RULES, null);
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      safeSet(STORAGE_KEYS.CHICKEN_RULES, SEED_CHICKEN_RULES);
+      return SEED_CHICKEN_RULES;
+    }
+    // Ensure newly added seed rules are present while keeping user-customized rules intact
+    const existingKeys = new Set(data.map((r) => r.ruleKey));
+    const missing = SEED_CHICKEN_RULES.filter((r) => !existingKeys.has(r.ruleKey));
+    if (missing.length > 0) {
+      const merged = [...data, ...missing];
+      safeSet(STORAGE_KEYS.CHICKEN_RULES, merged);
+      return merged;
+    }
+    return data;
+  },
+
+  saveChickenRules(rules: ChickenDeductionRule[]): void {
+    safeSet(STORAGE_KEYS.CHICKEN_RULES, rules);
+  },
+
+  calculateChickenUsageForItems(
+    cartItems: CartItem[],
+    rules?: ChickenDeductionRule[]
+  ): Record<string, number> {
+    const activeRules = rules || this.getChickenRules();
+    const ruleMap = new Map(activeRules.map((r) => [r.ruleKey, r]));
+    const usage: Record<string, number> = {};
+
+    for (const ci of cartItems) {
+      const variantKey = ci.variantName ? `${ci.itemId}::${ci.variantName}` : '';
+      const matchedRule = (variantKey && ruleMap.get(variantKey)) || ruleMap.get(ci.itemId);
+      if (!matchedRule) continue;
+
+      for (const comp of matchedRule.components) {
+        if (comp.quantity <= 0) continue;
+        usage[comp.chickenItemId] =
+          (usage[comp.chickenItemId] || 0) + comp.quantity * ci.quantity;
+      }
+    }
+
+    return usage;
+  },
+
+  deductChickenForBill(bill: Bill): { items: ChickenItem[]; logs: ChickenLogEntry[] } {
+    const usage = this.calculateChickenUsageForItems(bill.items);
+    const items = this.getChickenItems();
+    let logs = this.getChickenLogs();
+
+    if (Object.keys(usage).length === 0) {
+      return { items, logs };
+    }
+
+    const nowIso = new Date().toISOString();
+    const nowTs = Date.now();
+    const newLogs: ChickenLogEntry[] = [];
+
+    const updatedItems = items.map((item) => {
+      const usedQty = usage[item.id] || 0;
+      if (usedQty <= 0) return item;
+
+      const prevCount = item.currentCount;
+      const nextCount = Math.max(0, prevCount - usedQty);
+
+      newLogs.push({
+        id: `chklog-sale-${nowTs}-${item.id}-${Math.random().toString(36).slice(2, 6)}`,
+        chickenItemId: item.id,
+        itemName: item.name,
+        unit: item.unit,
+        type: 'sale',
+        quantity: usedQty,
+        previousCount: prevCount,
+        newCount: nextCount,
+        billId: bill.id,
+        note: `Order #${bill.id} (Token #${bill.tokenNumber})`,
+        timestamp: nowTs,
+      });
+
+      return {
+        ...item,
+        currentCount: nextCount,
+        updatedAt: nowIso,
+      };
+    });
+
+    this.saveChickenItems(updatedItems);
+    logs = [...newLogs, ...logs].slice(0, 800);
+    this.saveChickenLogs(logs);
+
+    return { items: updatedItems, logs };
+  },
+
+  returnChickenForVoidBill(bill: Bill): { items: ChickenItem[]; logs: ChickenLogEntry[] } {
+    const usage = this.calculateChickenUsageForItems(bill.items);
+    const items = this.getChickenItems();
+    let logs = this.getChickenLogs();
+
+    if (Object.keys(usage).length === 0) {
+      return { items, logs };
+    }
+
+    const nowIso = new Date().toISOString();
+    const nowTs = Date.now();
+    const newLogs: ChickenLogEntry[] = [];
+
+    const updatedItems = items.map((item) => {
+      const returnQty = usage[item.id] || 0;
+      if (returnQty <= 0) return item;
+
+      const prevCount = item.currentCount;
+      const nextCount = prevCount + returnQty;
+
+      newLogs.push({
+        id: `chklog-void-${nowTs}-${item.id}-${Math.random().toString(36).slice(2, 6)}`,
+        chickenItemId: item.id,
+        itemName: item.name,
+        unit: item.unit,
+        type: 'void_return',
+        quantity: returnQty,
+        previousCount: prevCount,
+        newCount: nextCount,
+        billId: bill.id,
+        note: `Void return #${bill.id}`,
+        timestamp: nowTs,
+      });
+
+      return {
+        ...item,
+        currentCount: nextCount,
+        updatedAt: nowIso,
+      };
+    });
+
+    this.saveChickenItems(updatedItems);
+    logs = [...newLogs, ...logs].slice(0, 800);
+    this.saveChickenLogs(logs);
+
+    return { items: updatedItems, logs };
+  },
+
+  // Staff Profiles, Attendance & Advance/Salary Payout Storage
+  getStaffMembers(): StaffMember[] {
+    return safeGet<StaffMember[]>(STORAGE_KEYS.STAFF_MEMBERS, []);
+  },
+
+  saveStaffMembers(members: StaffMember[]): void {
+    safeSet(STORAGE_KEYS.STAFF_MEMBERS, members);
+  },
+
+  getStaffAttendance(): StaffAttendanceRecord[] {
+    return safeGet<StaffAttendanceRecord[]>(STORAGE_KEYS.STAFF_ATTENDANCE, []);
+  },
+
+  saveStaffAttendance(records: StaffAttendanceRecord[]): void {
+    safeSet(STORAGE_KEYS.STAFF_ATTENDANCE, records);
+  },
+
+  getStaffPayouts(): StaffPayoutRecord[] {
+    return safeGet<StaffPayoutRecord[]>(STORAGE_KEYS.STAFF_PAYOUTS, []);
+  },
+
+  saveStaffPayouts(payouts: StaffPayoutRecord[]): void {
+    safeSet(STORAGE_KEYS.STAFF_PAYOUTS, payouts);
+  },
+
   // Export full JSON database for backup
   exportAllDataJson(): string {
     const payload = {
       app: 'The BBQ Boxx POS',
-      version: '1.1.0',
+      version: '1.3.0',
       exportedAt: new Date().toISOString(),
       categories: this.getCategories(),
       menuItems: this.getMenuItems(),
@@ -309,6 +525,12 @@ export const storage = {
       lastBillNumber: safeGet<number>(STORAGE_KEYS.LAST_BILL_NUMBER, 1000),
       inventoryItems: this.getInventoryItems(),
       inventoryLogs: this.getInventoryLogs(),
+      chickenItems: this.getChickenItems(),
+      chickenLogs: this.getChickenLogs(),
+      chickenRules: this.getChickenRules(),
+      staffMembers: this.getStaffMembers(),
+      staffAttendance: this.getStaffAttendance(),
+      staffPayouts: this.getStaffPayouts(),
     };
     return JSON.stringify(payload, null, 2);
   },
@@ -328,6 +550,12 @@ export const storage = {
       if (data.lastBillNumber) safeSet(STORAGE_KEYS.LAST_BILL_NUMBER, data.lastBillNumber);
       if (Array.isArray(data.inventoryItems)) safeSet(STORAGE_KEYS.INVENTORY_ITEMS, data.inventoryItems);
       if (Array.isArray(data.inventoryLogs)) safeSet(STORAGE_KEYS.INVENTORY_LOGS, data.inventoryLogs);
+      if (Array.isArray(data.chickenItems)) safeSet(STORAGE_KEYS.CHICKEN_ITEMS, data.chickenItems);
+      if (Array.isArray(data.chickenLogs)) safeSet(STORAGE_KEYS.CHICKEN_LOGS, data.chickenLogs);
+      if (Array.isArray(data.chickenRules)) safeSet(STORAGE_KEYS.CHICKEN_RULES, data.chickenRules);
+      if (Array.isArray(data.staffMembers)) safeSet(STORAGE_KEYS.STAFF_MEMBERS, data.staffMembers);
+      if (Array.isArray(data.staffAttendance)) safeSet(STORAGE_KEYS.STAFF_ATTENDANCE, data.staffAttendance);
+      if (Array.isArray(data.staffPayouts)) safeSet(STORAGE_KEYS.STAFF_PAYOUTS, data.staffPayouts);
       return true;
     } catch (e) {
       console.error('Failed to restore backup:', e);

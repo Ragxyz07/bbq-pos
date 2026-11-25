@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, AppSettings } from '../types';
-import { Flame, WifiOff, Download, Lock } from 'lucide-react';
+import { Flame, WifiOff, Download, Lock, Users } from 'lucide-react';
 import { usePWAInstall, useOnlineStatus } from '../hooks/usePWAInstall';
 
 interface HeaderProps {
@@ -11,6 +11,7 @@ interface HeaderProps {
   onLock: () => void;
   cartCount: number;
   lowStockCount?: number;
+  lowChickenCount?: number;
   onToggleTheme?: () => void;
 }
 
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLock,
   cartCount,
   lowStockCount = 0,
+  lowChickenCount = 0,
 }) => {
   const isOnline = useOnlineStatus();
   const { isInstallable, install, isIOS } = usePWAInstall();
@@ -43,6 +45,25 @@ export const Header: React.FC<HeaderProps> = ({
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const navTabs: { id: ActiveTab; label: string; alertCount?: number }[] = [
+    { id: 'billing', label: `Billing${cartCount > 0 ? ` (${cartCount})` : ''}` },
+    { id: 'orders', label: 'Orders' },
+    {
+      id: 'chicken-inventory',
+      label: 'Inventory',
+      alertCount: lowChickenCount > 0 ? lowChickenCount : undefined,
+    },
+    {
+      id: 'inventory',
+      label: 'Stock',
+      alertCount: lowStockCount > 0 ? lowStockCount : undefined,
+    },
+    { id: 'reports', label: 'Reports' },
+    { id: 'staff', label: 'Staff' },
+    { id: 'admin', label: 'Menu Admin' },
+    { id: 'settings', label: 'Settings' },
+  ];
 
   return (
     <>
@@ -77,18 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Zone 2: Navigation Links (Desktop/Tablet) */}
           <nav className="hidden md:flex items-center gap-2">
-            {[
-              { id: 'billing' as ActiveTab, label: `Billing${cartCount > 0 ? ` (${cartCount})` : ''}` },
-              { id: 'orders' as ActiveTab, label: 'Orders' },
-              {
-                id: 'inventory' as ActiveTab,
-                label: 'Inventory',
-                alertCount: lowStockCount > 0 ? lowStockCount : undefined,
-              },
-              { id: 'reports' as ActiveTab, label: 'Reports' },
-              { id: 'admin' as ActiveTab, label: 'Menu Admin' },
-              { id: 'settings' as ActiveTab, label: 'Settings' },
-            ].map((tab) => {
+            {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
@@ -119,6 +129,21 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Zone 3: Primary Action & Status */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Mobile quick-access Staff button (keeps BottomNav uncluttered) */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('staff')}
+              className={`md:hidden flex items-center gap-1 px-2.5 py-1.5 border text-[11px] font-bold uppercase transition-colors ${
+                activeTab === 'staff'
+                  ? 'bg-red-600 text-white border-red-600'
+                  : 'bg-white text-black border-black hover:bg-black/5'
+              }`}
+              title="Staff, Attendance & Salary"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Staff</span>
+            </button>
+
             {/* Offline Status indicator */}
             {!isOnline && (
               <div
@@ -126,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center gap-1.5 px-2.5 py-1 border border-black bg-white text-black text-xs font-bold"
               >
                 <WifiOff className="w-3.5 h-3.5 text-red-600" />
-                <span className="hidden sm:inline">Offline Mode</span>
+                <span className="hidden sm:inline">Offline</span>
               </div>
             )}
 
